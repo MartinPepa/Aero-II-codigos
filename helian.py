@@ -4,14 +4,14 @@ Created on Tue Sep 20 16:09:29 2022
 
 @author: Luis Martín Paredes Ross
 """
-#%% Import todo
+#%% Importacion de librerias
 
 import numpy as np
 from scipy.interpolate import CubicSpline
 import matplotlib.pyplot as plt
 import csv
 
-#%% Lectura y bajada de datos
+#%% Funciones
 
 def lectura_helice(archivo_helice):
     with open(archivo_helice, 'rt', encoding = 'utf8') as f:
@@ -74,51 +74,108 @@ def lectura_simulacion(parametros):
         return titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i,\
             Beta75f, NBeta, AlfaMin, AlfaPer, AlfaMax, Impres
 
+#%% Lectura y bajada de datos
+
 titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i, Beta75f, NBeta,\
     AlfaMin, AlfaPer, AlfaMax, Impres = lectura_simulacion('parametros.csv')
 titulo1, NDim1, xD, csR, beta = lectura_helice('helice.csv')
 titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
 
-#%%
+#%% Splines y gráficos
 
-if AlfaPer > AlfaMax:
+cs1 = CubicSpline(xD, csR)
+cs2 = CubicSpline(xD, beta)
+
+# xs = np.arange(0.2,1.0,0.05)
+
+fig, ax = plt.subplots(dpi=400)
+
+ax.plot(xD, csR    , 'o', label = 'cuerda/radio')
+ax.plot(xD, beta   , 'x', label = 'beta [rad]')
+ax.plot(xD, cs1(xD), label = 'spline csr')
+ax.plot(xD, cs2(xD), label = 'spline beta')
+
+ax.set_xlim(0.0,1.0)
+ax.legend(loc='upper right',ncol=1)
+
+plt.show()
+
+cs3 = CubicSpline(alfa, cl)
+cs4 = CubicSpline(alfa, cd)
+
+fig, bx = plt.subplots(dpi=400)
+
+bx.plot(alfa, cl, 'o', label = 'cl-alfa')
+bx.plot(alfa, cd, 'x', label = 'cd-alfa')
+bx.plot(alfa, cs3(alfa),label = 'spline cl')
+bx.plot(alfa, cs4(alfa),label = 'spline cd')
+
+bx.legend(loc='upper left',ncol=1)
+plt.show()
+
+fig, cx = plt.subplots(dpi=400)
+cx.plot(cd, cl, 'x', label = 'polar')
+plt.show()
+
+#%% Calculos preliminares
+
+if AlfaPer < AlfaMax:
     AlfaPer = AlfaMax
     R       = D/2
-    Omega   = pi*rpm/30
+    Omega   = np.pi*rpm/30
     v_t     = Omega*R
-    rho     = 0.1249*(1-2.25577/100000*h)^(4.25575)
+    rho     = 0.1249*(1-2.25577/100000*h)**4.25575
     Temp    = 15.0 - 0.065*h
-    mu      = 1.7894e-5 * ((Temp/15.0)^0.75)
+    mu      = 1.7894e-5 * ((Temp/15.0)**0.75)
     nu      = mu/rho
-    AlfMax  = AlfaMax*pi/180
-    splin(ndim1,xd,beta,z,a)
-    be75    = spfun(ndim1,xd,beta,z,0.75)
+    AlfMax  = AlfaMax*np.pi/180
+    # splin(ndim1,xd,beta,z,a)
+    #Beta75    = spfun(ndim1,xd,beta,z,0.75)
     
-    ajtov   = D*rpm/60.0
-    vei     = aji*ajtov
-    nve     = nj+1
-    delbe0  = bta75i - be75/pi*180.0
-    delbei  = (bta75f-bta75i)/nbta
-    ndelbe  = nbta+1
-#%%
+    AJtov   = D*rpm/60.0
+    vei     = AJ0*AJtov
+    DelVe   = (AJf-AJ0)/NJ*AJtov
+    nve     = NJ+1
+    DelBe0  = Beta75i - beta[11]/np.pi*180.0
+    DelBei  = (Beta75f-Beta75i)/NBeta
+    NDelBe  = NBeta+1
+
+C3 = []
+cX3 = 0.0
+for i in range(NDim1):
+    C = csR[i]*R
+    cX3 = C*xD[i]**3
+    C3.append(cX3)
+    C = 0
+    cX3 = 0
+#%% Titulo A
 
 
 
 
 
-
-
-#%%
-
+#%% 
 
 
 
 
 
-#%%
+#%% Titulo B
 
 
 
 
 
+#%% Rutina de calculo iterativo
 
+
+
+
+
+# Resultados
+
+
+
+
+
+#%% 
