@@ -4,59 +4,85 @@ Created on Tue Sep 20 16:09:29 2022
 
 @author: Luis Martín Paredes Ross
 """
+#%% Import todo
 
-"""
-#%% Subrutina de interpolacion splin
+import numpy as np
+from scipy.interpolate import CubicSpline
+import matplotlib.pyplot as plt
+import csv
 
-# La variable independiente debe estar ordenada en valores crecientes
-# Dimension del problama principal
-# Dimension x(n), s(n), z(n), a(2n-s)
+#%% Lectura y bajada de datos
 
-def splin(n,x,s,z,a):
-    #...
-    # Construccion del sistema de ecuaciones
-    #...
-    # Construccion y solucion del sistema auxiliar
-    #...
-    # Solucion definitiva del sistema
-    #...
-    # Calculo de la segunda derivada en los nodos
-    return True
+def lectura_helice(archivo_helice):
+    with open(archivo_helice, 'rt', encoding = 'utf8') as f:
+        rows        = csv.reader(f)
+        fila_1      = next(rows)
+        fila_2      = next(rows)
+        titulo      = str(fila_2[0])
+        Ndim1       = int(fila_2[1])
+        encabezado  = next(rows)
+        xD          = []
+        csR         = []
+        beta        = []
+        for i, row in enumerate(rows):
+            xD.append(float(row[0]))
+            csR.append(float(row[1]))
+            beta.append(float(row[2]))
+        return titulo, Ndim1, xD, csR, beta
+    
+def lectura_curva_polar(archivo_polar):
+    with open(archivo_polar, 'rt', encoding = 'utf8') as f:
+        rows        = csv.reader(f)
+        fila_1      = next(rows)
+        fila_2      = next(rows)
+        titulo      = str(fila_2[0])
+        Ndim2       = int(fila_2[1])
+        encabezado  = next(rows)
+        alfa        = []
+        cl          = []
+        cd          = []
+        for i, row in enumerate(rows):
+            alfa.append(float(row[0]))
+            cl.append(float(row[1]))
+            cd.append(float(row[2]))
+        return titulo, Ndim2, alfa, cl, cd
 
-#%% Coeficientes de la funcion splin de tercer grado en el intervalo Y
+def lectura_simulacion(parametros):
+    with open(parametros, 'rt', encoding = 'utf8') as f:
+        rows = csv.reader(f)
+        datos = []
+        for i, row in enumerate(rows):
+            datos.append(row[1])
+        titulo  = datos[0]
+        AJ0     = float(datos[1])
+        AJf     = float(datos[2])
+        NJ      = float(datos[3])
+        rpm     = float(datos[4])
+        h       = float(datos[5])
+        B       = float(datos[6])
+        D       = float(datos[7])
+        X0      = float(datos[8])
+        DeltaX  = float(datos[9])
+        NX      = float(datos[10])
+        Beta75i = float(datos[11])
+        Beta75f = float(datos[12])
+        NBeta   = float(datos[13])
+        AlfaMin = float(datos[14])
+        AlfaPer = float(datos[15])
+        AlfaMax = float(datos[16])
+        Impres  = float(datos[17])
+        return titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i,\
+            Beta75f, NBeta, AlfaMin, AlfaPer, AlfaMax, Impres
 
-def specoe(xi,xj,si,sj,zi,zj,c):
-    #...
-    return True
-#%% Integral de la funcion splin entre A y B
-
-def spint(n,x,s,z,A,B):
-    #...
-    # Llama a specoe
-    return True
-
-#%% Calculo de la funcion splin en el punto Y
-
-def spfun(n,x,s,z,Y):
-    #...
-    # Llama a specoe
-    return True
-
-#%% Calculo de la derivada de la funcion splin en el punto Y
-
-def spder(n,x,s,z,a):
-    #...
-    # Llama a specoe
-    return True
-"""
-
-#%% Lectura de datos
-
+titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i, Beta75f, NBeta,\
+    AlfaMin, AlfaPer, AlfaMax, Impres = lectura_simulacion('parametros.csv')
+titulo1, NDim1, xD, csR, beta = lectura_helice('helice.csv')
+titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
 
 #%%
 
-if alf_per > alf_max:
-    alf_per = alf_max
+if AlfaPer > AlfaMax:
+    AlfaPer = AlfaMax
     R       = D/2
     Omega   = pi*rpm/30
     v_t     = Omega*R
@@ -64,7 +90,7 @@ if alf_per > alf_max:
     Temp    = 15.0 - 0.065*h
     mu      = 1.7894e-5 * ((Temp/15.0)^0.75)
     nu      = mu/rho
-    alf_mx  = alfa_max*pi/180
+    AlfMax  = AlfaMax*pi/180
     splin(ndim1,xd,beta,z,a)
     be75    = spfun(ndim1,xd,beta,z,0.75)
     
