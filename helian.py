@@ -20,7 +20,6 @@ def lectura_helice(archivo_helice):
         fila_1      = next(rows)
         fila_2      = next(rows)
         titulo      = str(fila_2[0])
-        Ndim1       = int(fila_2[1])
         encabezado  = next(rows)
         xD          = []
         csR         = []
@@ -29,6 +28,7 @@ def lectura_helice(archivo_helice):
             xD.append(float(row[0]))
             csR.append(float(row[1]))
             beta.append(float(row[2]))
+            Ndim1   = i+1
         return titulo, Ndim1, xD, csR, beta
     
 def lectura_curva_polar(archivo_polar):
@@ -37,7 +37,6 @@ def lectura_curva_polar(archivo_polar):
         fila_1      = next(rows)
         fila_2      = next(rows)
         titulo      = str(fila_2[0])
-        Ndim2       = int(fila_2[1])
         encabezado  = next(rows)
         alfa        = []
         cl          = []
@@ -46,7 +45,8 @@ def lectura_curva_polar(archivo_polar):
             alfa.append(float(row[0]))
             cl.append(float(row[1]))
             cd.append(float(row[2]))
-        return titulo, Ndim2, alfa, cl, cd
+            NDim2   = i+1
+        return titulo, NDim2, alfa, cl, cd
 
 def lectura_simulacion(parametros):
     with open(parametros, 'rt', encoding = 'utf8') as f:
@@ -57,29 +57,32 @@ def lectura_simulacion(parametros):
         titulo  = datos[0]
         AJ0     = float(datos[1])
         AJf     = float(datos[2])
-        NJ      = float(datos[3])
+        NJ      = int(  datos[3])
         rpm     = float(datos[4])
         h       = float(datos[5])
-        B       = float(datos[6])
+        B       = int(  datos[6])
         D       = float(datos[7])
         X0      = float(datos[8])
         DeltaX  = float(datos[9])
-        NX      = int(datos[10])
+        NX      = int(  datos[10])
         Beta75i = float(datos[11])
         Beta75f = float(datos[12])
-        NBeta   = int(datos[13])
+        NBeta   = int(  datos[13])
         AlfaMin = float(datos[14])
         AlfaPer = float(datos[15])
         AlfaMax = float(datos[16])
-        Impres  = float(datos[17])
+        Impres  = int(  datos[17])
         return titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i,\
             Beta75f, NBeta, AlfaMin, AlfaPer, AlfaMax, Impres
 
 #%% Lectura y bajada de datos
 
-titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i, Beta75f, NBeta,\
-    AlfaMin, AlfaPer, AlfaMax, Impres = lectura_simulacion('parametros.csv')
+titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX,\
+    NX, Beta75i, Beta75f, NBeta, AlfaMin, AlfaPer,\
+    AlfaMax, Impres = lectura_simulacion('parametros.csv')
+    
 titulo1, NDim1, xD, csR, beta = lectura_helice('helice.csv')
+
 titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
 
 #%% Splines y gráficos
@@ -144,7 +147,7 @@ NDelBe  = NBeta+1
 
 C3 = []
 cX3 = 0.0
-for i in range(NDim1+1):
+for i in range(NDim1):
     C = csR[i]*R
     cX3 = C*xD[i]**3
     C3.append(cX3)
@@ -174,9 +177,25 @@ for i in range(NX):
     X0 += DeltaX
 #%% Titulo A
 
-
-
-
+print('__________'*6,'\n')
+print('Resultados del programa Helian para análisis de hélices')
+print('----------'*5)
+print(f'Título: {titulo:<}')
+print('----------'*5)
+print(f'Hélice: {titulo1:<} - Cant. de puntos: {NDim1:<d}')
+print(f'Factor de actividad AF: {Fact_Act:<.2f}')
+print('----------'*5)
+print(f'Perfil: {titulo2:<} - Cant. de puntos: {NDim2:<d}')
+print('----------'*5)
+print(f'Parámetros de la corrida:')
+print(f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |')
+print(f'rpm: {rpm:>10.2f} | Alt [m]: {h:>6.2f} |')
+print(f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |')
+print(f'X0: {X0:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |')
+print(f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |')
+print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:>3.1f} |')
+print(f'Impresión: {Impres:>4d} |')
+print('----------'*5)
 
 #%% 
 
