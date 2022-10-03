@@ -75,9 +75,6 @@ def lectura_simulacion(parametros):
 titulo1, NDim1, xD, csR, beta = lectura_helice('helice.csv')
 titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
 
-# x = np.linspace(0.2,0.95,num=16,retstep=False)
-# csr = [0.1180,0.1250,0.1290,0.1320,0.1340,0.1340,0.1320,0.1300,0.1260,0.1200,0.1140,0.1050,0.0950,0.0850,0.0720,0.0600]
-# beta = [0.4192,0.3759,0.3321,0.2916,0.2642,0.2293,0.2040,0.1831,0.1630,0.1435,0.1289,0.1183,0.1090,0.0989,0.0917,0.0836]
 cs1 = CubicSpline(xD, csR)
 cs2 = CubicSpline(xD, beta)
 
