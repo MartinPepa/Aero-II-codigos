@@ -87,8 +87,10 @@ titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
 
 #%% Splines y gráficos
 
-cs1 = CubicSpline(xD, csR, bc_type = 'natural')
+cs1 = CubicSpline(xD,  csR, bc_type = 'natural')
 cs2 = CubicSpline(xD, beta, bc_type = 'natural')
+cs3 = CubicSpline(alfa, cl, bc_type = 'natural')
+cs4 = CubicSpline(alfa, cd, bc_type = 'natural')
 
 # xs = np.arange(0.2,1.0,0.05)
 
@@ -98,14 +100,9 @@ ax.plot(xD, csR    , 'o', label = 'cuerda/radio')
 ax.plot(xD, beta   , 'x', label = 'beta [rad]')
 ax.plot(xD, cs1(xD), label = 'spline csr')
 ax.plot(xD, cs2(xD), label = 'spline beta')
-
 ax.set_xlim(0.0,1.0)
 ax.legend(loc='upper right',ncol=1)
-
 plt.show()
-
-cs3 = CubicSpline(alfa, cl, bc_type = 'natural')
-cs4 = CubicSpline(alfa, cd, bc_type = 'natural')
 
 fig, bx = plt.subplots(dpi=400)
 
@@ -118,6 +115,7 @@ bx.legend(loc='upper left',ncol=1)
 plt.show()
 
 fig, cx = plt.subplots(dpi=400)
+
 cx.plot(cd, cl, 'x', label = 'polar')
 plt.show()
 
@@ -128,20 +126,20 @@ if AlfaPer > AlfaMax:
 
 R       = D/2
 Omega   = np.pi*rpm/30
-v_t     = Omega*R
+VT     = Omega*R
 rho     = 0.1249*(1-2.25577/100000*h)**4.25575
 Temp    = 15.0 - 0.065*h
 mu      = 1.7894e-5 * ((Temp/15.0)**0.75)
 nu      = mu/rho
 AlfMax  = AlfaMax*np.pi/180
 
-Beta75    = float(cs2(0.75))
+Be75    = float(cs2(0.75))
 
-AJtov   = D*rpm/60.0
-vei     = AJ0*AJtov
-DelVe   = (AJf-AJ0)/NJ*AJtov
-nve     = NJ+1
-DelBe0  = Beta75i - Beta75/np.pi*180.0
+AJtoV   = D*rpm/60.0
+VEi     = AJ0*AJtoV
+DelVe   = (AJf-AJ0)/NJ*AJtoV
+NVe     = NJ+1
+DelBe0  = Beta75i - Be75/np.pi*180.0
 DelBei  = (Beta75f-Beta75i)/NBeta
 NDelBe  = NBeta+1
 
@@ -189,7 +187,7 @@ print(f'Perfil:\n\n{titulo2:<}\nCant. de puntos: {NDim2:<d}')
 print('----------'*5)
 print(f'Parámetros de la corrida:\n')
 print(f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |')
-print(f'rpm: {rpm:>10.2f} | Alt [m]: {h:>6.2f} |')
+print(f'RPM: {rpm:>10.2f} | Alt [m]: {h:>6.2f} |')
 print(f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |')
 print(f'X0: {X0:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |')
 print(f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |')
@@ -197,14 +195,79 @@ print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:
 print(f'Impresión: {Impres:>4d} |')
 print('----------'*5)
 
-#%% 
+#%% Ciclo grande - Recorre los ángulos 'NBeta' ángulos Beta
 
+for i in range(NDelBe):
+    V0      = VEi
+    DelBe_G = DelBe0
+    DelBe_R = DelBe_G * np.pi/180
+    Beta75  = Be75 + DelBe_R
+    Be75_G  = Beta75 * 180/np.pi
 
+    #%% Titulo B
 
-
-
-#%% Titulo B
-
+    print(f'DelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
+    if Impres == 1:
+        print(f'|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
+        
+    #%% Ciclo interno de iteraciones
+    
+    for j in range(NVe):
+        pa = ' '
+        pb = ' '
+        lambda_g = V0/VT
+        alfa_i_0 = 0.0000001
+        
+        phi         = []
+        beta_a      = []
+        alfa_i      = []
+        alfa_i_g    = []
+        alfa_a      = []
+        alfa_a_g    = []
+        VE_VT       = []
+        arg         = []
+        Cl          = []
+        F           = []
+        for k in range(NX):
+            VE_VT_0 = np.sqrt( X[k]**2 + lambda_g**2)
+            phi.append( np.arctan( lambda_g/X[k] ) )
+            
+            # if X[k] == 1.0:
+                
+            alfa_i.append(alfa_i_0)
+            for l in range(100):
+                alfa_i_g.append(alfa_i[k]*180/np.pi)
+                VE_VT.append(VE_VT_0)
+                arg.append( phi[k] + alfa_i[k] )
+                alfa_a.append( beta_a[k] - phi[k] - alfa_i[k] )
+                alfa_a_g.append( alfa_a[k] + 180/np.pi )
+                
+                if ( alfa_a_g[k] > AlfaMax ) or ( alfa_a_g[k] < AlfaMin ):
+                    V0 += DelVe
+                    print('**********'*6)
+                    DelBe0 += DelBei
+                    
+                    break
+                    break
+                    break
+                
+                if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
+                    pa = '('
+                    pb = ')'
+                
+                Cl.append(cs3(alfa_a_g[k]))
+                f = B/2 * (1-X[k]) / (X[k]*np.sin(arg[k]))
+                
+                if f < 50.0:
+                    G = np.exp(-f)
+                    F.append( 2/np.pi * np.arccos(G) )
+                else:
+                    F.append(1.0)
+                
+                
+                        
+                
+    
 
 
 

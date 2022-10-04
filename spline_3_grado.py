@@ -111,3 +111,5 @@ plt.show()
 
 titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX, NX, Beta75i, Beta75f, NBeta,\
     AlfaMin, AlfaPer, AlfaMax, Impres = lectura_simulacion('parametros.csv')
+    
+prueba = np.arctan(1) * 180 / np.pi
