@@ -198,21 +198,23 @@ print('----------'*5)
 #%% Ciclo grande - Recorre los ángulos 'NBeta' ángulos Beta
 
 for i in range(NDelBe):
-    V0      = VEi #+ DelVe
+    V0      = VEi + DelVe
     DelBe_G = DelBe0
     DelBe_R = DelBe_G * np.pi/180
     Beta75  = Be75 + DelBe_R
     Be75_G  = Beta75 * 180/np.pi
 
     #%% Titulo B
-
-    print(f'DelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
+    
+    seguir = 0
+    seguir = input(f'Continuarmos? Presionar "Enter"')
+    print(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
     if Impres == 1:
         print(f'|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
         
     #%% Ciclo interno de iteraciones
     
-    for j in range(NVe):
+    for j in range(NVe-1):
         pa = ' '
         pb = ' '
         lambda_g = V0/VT
@@ -241,6 +243,7 @@ for i in range(NDelBe):
         Ve          = np.zeros(NX)
         Cl_x2       = np.zeros(NX)
         for k in range(NX):
+            check = 0
             VE_VT_0     = np.sqrt( X[k]**2 + lambda_g**2)
             phi[k]      = np.arctan( lambda_g/X[k] ) 
             beta_a[k]   = beta_x[k]+DelBe_R
@@ -276,9 +279,11 @@ for i in range(NDelBe):
                 alfa_a_g[k] = alfa_a[k] * 180/np.pi
                 
                 if ( alfa_a_g[k] > AlfaMax ) or ( alfa_a_g[k] < AlfaMin ):
+                    n       = Omega/6.2832
+                    AJ      = V0/n/D
                     # V0 += DelVe
-                    print('**********'*8)
-                    # DelBe0 += DelBei
+                    print(f' {AJ:^12.2f}-----','   Alguna estación se encuentra fuera de la curva cl-alfa   ','-----')
+                    check = 1
                     
                     break
                 
@@ -322,8 +327,12 @@ for i in range(NDelBe):
                 if iteracion == 99:
                     print(f'Alfa_a no converge para x ={X[k]:>.2f}, V ={V0:>.2f}, Beta75 = {Be75_G:>.2f}')
                 iteracion += 1
+            if check == 1:
+                break
             #%% Resultados
-            
+        if check == 1:
+            V0 += DelVe
+            continue
         A1 = X[0]
         B1 = X[NX-1]
         
@@ -353,7 +362,7 @@ for i in range(NDelBe):
             ETA_1 = PID/(P*76.05)
         
         if Impres == 1:
-            print(pa, f'{AJ:^12.2f}{CT:^12.2f}{CP:^12.2f}{ETA_1:^12.2f}{alfa_a_g[0]:^12.2f}{alfa_a_g[NX-2]:^12.2f}{CL_I:^12.2f}',pb)
+            print(pa,f'{AJ:^11.2f} {CT:^12.2f} {CP:^12.2f} {ETA_1:^12.2f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.2f}',pb)
             if ETA_1 < 0.:
                 print(f'**********'*6)
                 DelBe0 += DelBei
