@@ -139,7 +139,7 @@ AJtoV   = D*rpm/60.0
 VEi     = AJ0*AJtoV
 DelVe   = (AJf-AJ0)/NJ*AJtoV
 NVe     = NJ+1
-DelBe0  = Beta75i - Be75/np.pi*180.0
+DelBe0  = Beta75i - Be75*180/np.pi
 DelBei  = (Beta75f-Beta75i)/NBeta
 NDelBe  = NBeta+1
 
@@ -198,7 +198,7 @@ print('----------'*5)
 #%% Ciclo grande - Recorre los ángulos 'NBeta' ángulos Beta
 
 for i in range(NDelBe):
-    V0      = VEi +DelVe
+    V0      = VEi #+ DelVe
     DelBe_G = DelBe0
     DelBe_R = DelBe_G * np.pi/180
     Beta75  = Be75 + DelBe_R
@@ -218,160 +218,160 @@ for i in range(NDelBe):
         lambda_g = V0/VT
         alfa_i_0 = 0.0000001
         
-        phi         = []
-        beta_a      = []
-        alfa_i      = []
-        alfa_i_g    = []
-        alfa_a      = []
-        alfa_a_g    = []
-        Ve_Vt       = []
+        phi         = np.zeros(NX)
+        beta_a      = np.zeros(NX)
+        alfa_i      = np.zeros(NX)
+        alfa_i_g    = np.zeros(NX)
+        alfa_a      = np.zeros(NX)
+        alfa_a_g    = np.zeros(NX)
+        Ve_Vt       = np.zeros(NX)
         # print(VE_VT[0])1
-        arg         = []
-        Cl          = []
-        F           = []
-        sigma       = []
-        wt_VT       = []
-        wa          = []
-        wa_VT       = []
-        indice      = []
-        Cd          = []
-        dkt         = []
-        dkp         = []
-        Re          = []
-        Ve          = []
-        Cl_x2       = []
+        arg         = np.zeros(NX)
+        Cl          = np.zeros(NX)
+        F           = np.zeros(NX)
+        # sigma       = np.zeros(NX)
+        wt_VT       = np.zeros(NX)
+        wa          = np.zeros(NX)
+        wa_VT       = np.zeros(NX)
+        indice      = np.zeros(NX)
+        Cd          = np.zeros(NX)
+        dkt         = np.zeros(NX)
+        dkp         = np.zeros(NX)
+        Re          = np.zeros(NX)
+        Ve          = np.zeros(NX)
+        Cl_x2       = np.zeros(NX)
         for k in range(NX):
-            VE_VT_0 = np.sqrt( X[k]**2 + lambda_g**2)
-            phi.append( np.arctan( lambda_g/X[k] ) )
-            beta_a.append(beta_x[k]+DelBe_R)
+            VE_VT_0     = np.sqrt( X[k]**2 + lambda_g**2)
+            phi[k]      = np.arctan( lambda_g/X[k] ) 
+            beta_a[k]   = beta_x[k]+DelBe_R
             
             if X[k] == 1.0:
-                alfa_a_g.append(-5.07)
-                alfa_a.append(alfa_a_g*np.pi*180)
-                Cl.append(0)
-                Cl_x2.append(0)
-                Cd.append(cs4(alfa_a[k]))
-                VR_VT = np.sqrt(X[k]**2+lambda_g**2)
-                phi.append(np.arctan(lambda_g*X[k]))
-                alfa_i.append(beta_a[k]-phi[k])
-                alfa_i_g.append(alfa_i[k]*180/np.pi)
-                wt_VT.append(VR_VT*np.sin(alfa_i[k])*np.sin(beta_a[k]))
-                wa_VT.append(VR_VT*np.sin(alfa_i[k])*np.cos(beta_a[k]))
-                Ve_Vt.append(np.sqrt((X[k]-wt_VT)**2+(lambda_g+wa_VT[k])**2))
-                dkt.append(-sigma[k]*(Ve_Vt[k]**2*Cd[k]*np.sin(beta_a[k])))
-                dkp.append(sigma[k]*(Ve_Vt[k]**2*Cd[k]*np.cos(beta_a[k])))
+                alfa_a_g[k] = -5.07
+                alfa_a[k]   = alfa_a_g*np.pi/180
+                Cl[k]       = 0
+                Cl_x2[k]    = 0
+                Cd[k]       = cs4(alfa_a[k])
+                VR_VT       = np.sqrt(X[k]**2+lambda_g**2)
+                phi[k]      = np.arctan(lambda_g*X[k])
+                alfa_i[k]   = beta_a[k]-phi[k]
+                alfa_i_g[k] = alfa_i[k]*180/np.pi
+                wt_VT[k]    = VR_VT*np.sin(alfa_i[k])*np.sin(beta_a[k])
+                wa_VT[k]    = VR_VT*np.sin(alfa_i[k])*np.cos(beta_a[k])
+                Ve_Vt[k]    = np.sqrt((X[k]-wt_VT)**2+(lambda_g+wa_VT[k])**2)
+                dkt[k]      = -sigma_x[k]*(Ve_Vt[k]**2*Cd[k]*np.sin(beta_a[k]))
+                dkp[k]      = sigma_x[k]*(Ve_Vt[k]**2*Cd[k]*np.cos(beta_a[k]))
+                
                 if Impres == 2:
-                        Re.append(cuerda_x[k]*Ve_Vt[k]*VT/nu)
-                        Ve.append(Ve_Vt[k]*VT)
-                
-                
-            
-            for l in range(100):
-                alfa_i.append(alfa_i_0)
-                alfa_i_g.append(alfa_i[k]*180/np.pi)
-                Ve_Vt.append(VE_VT_0)
-                arg.append( phi[k] + alfa_i[k] )
-                alfa_a.append( beta_a[k] - phi[k] - alfa_i[k] )
-                alfa_a_g.append( alfa_a[k] + 180/np.pi )
+                        Re[k] = cuerda_x[k]*Ve_Vt[k]*VT/nu
+                        Ve[k] = Ve_Vt[k]*VT
+            Error       = 1.0
+            iteracion   = 0
+            while (Error > 0.02) and (iteracion < 100):
+            # for l in range(100):
+                alfa_i[k]   = alfa_i_0
+                alfa_i_g[k] = alfa_i[k]*180/np.pi
+                Ve_Vt[k]    = VE_VT_0
+                arg[k]      = phi[k] + alfa_i[k]
+                alfa_a[k]   = beta_a[k] - phi[k] - alfa_i[k]
+                alfa_a_g[k] = alfa_a[k] * 180/np.pi
                 
                 if ( alfa_a_g[k] > AlfaMax ) or ( alfa_a_g[k] < AlfaMin ):
-                    V0 += DelVe
-                    print('**********'*6)
-                    DelBe0 += DelBei
+                    # V0 += DelVe
+                    print('**********'*8)
+                    # DelBe0 += DelBei
                     
-                    break
-                    break
                     break
                 
                 if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
                     pa = '('
                     pb = ')'
                 
-                Cl.append(cs3(alfa_a_g[k]))
+                Cl[k] = cs3(alfa_a_g[k])
                 f = B/2 * (1-X[k]) / (X[k]*np.sin(arg[k]))
                 
                 if f < 50.0:
                     G = np.exp(-f)
-                    F.append( 2/np.pi * np.arccos(G) )
+                    F[k] = 2/np.pi * np.arccos(G)
                 else:
-                    F.append(1.0)
+                    F[k] = 1.0
                     
-                wt_VT.append( sigma[k]*Ve_Vt[k]*Cl[k] / ( 8.0*X[k]*F[k]) )
-                wa.append( np.sqrt( lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k])))
-                wa_VT.append( 0.5*(-lambda_g+wa[k]))
-                alf = (lambda_g+wa_VT[k]) / (X[k] -wt_VT[k])
-                alfa_i1 = np.arctan(alf) - phi[k]
-                Error = np.abs(alfa_i1-alfa_i[k])
-                indice[k] = l
+                wt_VT[k]    = sigma_x[k]*Ve_Vt[k]*Cl[k] / ( 8.0*X[k]*F[k])
+                wa[k]       = np.sqrt( lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k]))
+                wa_VT[k]    = 0.5*(-lambda_g+wa[k])
+                alf         = (lambda_g+wa_VT[k]) / (X[k] -wt_VT[k])
+                alfa_i1     = np.arctan(alf) - phi[k]
+                Error       = np.abs(alfa_i1-alfa_i[k])
+                indice[k]   = iteracion
                 
                 if Error <= 0.02:
-                    Cd.append(cs4(alfa_a[k]))
-                    kt1 = sigma[k]*Ve_Vt[k]**2
-                    kt2 = Cl[k]*np.cos(arg[k])-Cd[k]*np.sin(arg[k])
-                    dkt.append(kt1*kt2)
-                    kp1 = kt1*X[k]
-                    kp2 = Cl[k]*np.sin(arg[k])+Cd[k]*np.cos(arg[k])
-                    dkp.append(kp1*kp2)
-                    Cl_x2.append(Cl[k]*X[k]*X[k])
+                    Cd[k]       = cs4(alfa_a[k])
+                    kt1         = sigma_x[k]*Ve_Vt[k]**2
+                    kt2         = Cl[k]*np.cos(arg[k])-Cd[k]*np.sin(arg[k])
+                    dkt[k]      = kt1*kt2
+                    kp1         = kt1*X[k]
+                    kp2         = Cl[k]*np.sin(arg[k])+Cd[k]*np.cos(arg[k])
+                    dkp[k]      = kp1*kp2
+                    Cl_x2[k]    = Cl[k]*X[k]*X[k]
                     if Impres == 2:
-                        Re.append(cuerda_x[k]*Ve_Vt[k]*VT/nu)
-                        Ve.append(Ve_Vt[k]*VT)
+                        Re[k] = cuerda_x[k]*Ve_Vt[k]*VT/nu
+                        Ve[k] = Ve_Vt[k]*VT
                     break
                 else:
                     alfa_i_0 = (alfa_i1+alfa_i[k])/2
                 
-                if l == 99:
+                if iteracion == 99:
                     print(f'Alfa_a no converge para x ={X[k]:>.2f}, V ={V0:>.2f}, Beta75 = {Be75_G:>.2f}')
-            
+                iteracion += 1
             #%% Resultados
             
-            A1 = X[0]
-            B1 = X[NX-1]
-            
-            cs5 = CubicSpline(X, Cl_x2, bc_type = 'natural')
-            Integral_cs5 = integrate.simpson(X,Cl_x2)
-            CL_I = 3*Integral_cs5
-            
-            cs6 = CubicSpline(X, dkt, bc_type = 'natural')
-            Integral_dkt = integrate.simpson(X,dkt)
-            
-            cs7 = CubicSpline(X, dkp, bc_type = 'natural')
-            Integral_dkp = integrate.simpson(X,dkp)
-            
-            T       = 1.5708*rho*(R**2)*(VT**2)*Integral_dkt
-            P       = 1.5708*rho*(R**2)*(VT**3)*Integral_dkp/76.05
-            ETA     = T*V0/P/76.05
-            n       = Omega/6.2832
-            AJ      = V0/n/D
-            CT      = 3.8759*Integral_dkt
-            CP      = 12.1761*Integral_dkp
-            ETA_1   = AJ*CT/np.abs(CP)
-            
-            if ETA_1 == 0.0:
-                PID = T**1.5/(R*np.sqrt(6.2832*rho))
-                ETA_1 = PID/(P*76.05)
-            
-            if Impres == 1:
-                print(pa, f'{AJ:^12.2f}{CT:^12.2f}{CP:^12.2f}{ETA_1:^12.2f}\
-                      {alfa_a_g[0]:^12.2f}{alfa_a_g[NX-2]:^12.2f}\
-                          {CL_I:^12.2f}',pb)
-                if ETA_1 < 0.:
-                    print(f'**********'*6)
-                    DelBe0 += DelBei
-                    break
+        A1 = X[0]
+        B1 = X[NX-1]
+        
+        cs5 = CubicSpline(X, Cl_x2, bc_type = 'natural')
+        Integral_cs5 = integrate.simpson(X,Cl_x2)
+        CL_I = 3*Integral_cs5
+        
+        cs6 = CubicSpline(X, dkt, bc_type = 'natural')
+        Integral_dkt = integrate.simpson(X,dkt)
+        
+        cs7 = CubicSpline(X, dkp, bc_type = 'natural')
+        Integral_dkp = integrate.simpson(X,dkp)
+        
+        T       = 1.5708*rho*(R**2)*(VT**2)*Integral_dkt
+        P       = 1.5708*rho*(R**2)*(VT**3)*Integral_dkp/76.05
+        ETA     = T*V0/P/76.05
+        n       = Omega/6.2832
+        AJ      = V0/n/D
+        CT      = 3.8759*Integral_dkt
+        CP      = 12.1761*Integral_dkp
+        ETA_1   = AJ*CT/np.abs(CP)
+        
+        V0 += DelVe
+        
+        if ETA_1 == 0.0:
+            PID = T**1.5/(R*np.sqrt(6.2832*rho))
+            ETA_1 = PID/(P*76.05)
+        
+        if Impres == 1:
+            print(pa, f'{AJ:^12.2f}{CT:^12.2f}{CP:^12.2f}{ETA_1:^12.2f}{alfa_a_g[0]:^12.2f}{alfa_a_g[NX-2]:^12.2f}{CL_I:^12.2f}',pb)
+            if ETA_1 < 0.:
+                print(f'**********'*6)
+                DelBe0 += DelBei
                 break
-            else:
-                print(pa, f'{AJ:^12.2f}{CT:^12.2f}{CP:^12.2f}{ETA_1:^12.2f}\
-                      {alfa_a_g[0]:^12.2f}{alfa_a_g[NX-2]:^12.2f}\
-                          {CL_I:^12.2f}',pb)
-                print(f'({X[k]:^.2f}, {alfa_a_g[k]:^.2f}, {cl[k]:^.2f}, \
-                      {cd[k]:^.2f}, {alfa_i_g[k]:^.2f}, {Ve[k]:^.2f},\
-                      {Re[k]:^.2f}, k=1, {NX:^d})')
-                if ETA_1 < 0.:
-                    print(f'**********'*6)
-                    DelBe0 += DelBei
-                    break
+            continue
+        else:
+            print(pa, f'{AJ:^12.2f}{CT:^12.2f}{CP:^12.2f}{ETA_1:^12.2f}\
+                  {alfa_a_g[0]:^12.2f}{alfa_a_g[NX-2]:^12.2f}\
+                      {CL_I:^12.2f}',pb)
+            print(f'({X[k]:^.2f}, {alfa_a_g[k]:^.2f}, {cl[k]:^.2f}, \
+                  {cd[k]:^.2f}, {alfa_i_g[k]:^.2f}, {Ve[k]:^.2f},\
+                  {Re[k]:^.2f}, k=1, {NX:^d})')
+            if ETA_1 < 0.:
+                print(f'**********'*6)
+                DelBe0 += DelBei
                 break
+            break
+    DelBe0 += DelBei
 
 
 
