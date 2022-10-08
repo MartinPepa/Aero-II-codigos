@@ -126,7 +126,7 @@ if AlfaPer > AlfaMax:
 
 R       = D/2
 Omega   = np.pi*rpm/30
-VT     = Omega*R
+VT      = Omega*R
 rho     = 0.1249*(1-2.25577/100000*h)**4.25575
 Temp    = 15.0 - 0.065*h
 mu      = 1.7894e-5 * ((Temp/15.0)**0.75)
@@ -195,6 +195,33 @@ print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:
 print(f'Impresión: {Impres:>4d} |')
 print('----------'*5)
 
+enc_01 = '__________'*6
+enc_02 = 'Resultados del programa Helian para análisis de hélices\n'
+enc_03 = '----------'*5
+enc_04 = f'Título:\n\n{titulo:<}'
+enc_05 = '----------'*5
+enc_06 = f'Hélice:\n\n{titulo1:<}\nCant. de puntos: {NDim1:<d}'
+enc_07 = f'Factor de actividad AF: {Fact_Act:<.2f}'
+enc_08 = '----------'*5
+enc_09 = f'Perfil:\n\n{titulo2:<}\nCant. de puntos: {NDim2:<d}'
+enc_10 = '----------'*5
+enc_11 = f'Parámetros de la corrida:\n'
+enc_12 = f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |'
+enc_13 = f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |'
+enc_14 = f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |'
+enc_15 = f'X0: {X0:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |'
+enc_16 = f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |'
+enc_17 = f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:>3.1f} |'
+enc_18 = f'Impresión: {Impres:>4d} |'
+enc_19 = '----------'*5 + '\n'
+
+lista_encabezado = [enc_01, enc_02, enc_03, enc_04, enc_05, enc_06, enc_07, enc_08,\
+                    enc_09, enc_10, enc_11, enc_12, enc_13, enc_14, enc_15, enc_16,\
+                        enc_17, enc_18, enc_19]
+
+with open('Resultados.txt', 'w', encoding = 'utf-8') as f:
+    f.write('\n'.join(lista_encabezado))
+
 #%% Ciclo grande - Recorre los ángulos 'NBeta' ángulos Beta
 
 for i in range(NDelBe):
@@ -207,11 +234,14 @@ for i in range(NDelBe):
     #%% Titulo B
     
     seguir = 0
-    seguir = input(f'Continuarmos? Presionar "Enter"')
+    # seguir = input(f'Continuarmos? Presionar "Enter"')
     print(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
+    with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+        f.write(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n\n')
     if Impres == 1:
         print(f'|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
-        
+        with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+            f.write(f'|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
     #%% Ciclo interno de iteraciones
     
     for j in range(NVe-1):
@@ -267,6 +297,7 @@ for i in range(NDelBe):
                 if Impres == 2:
                         Re[k] = cuerda_x[k]*Ve_Vt[k]*VT/nu
                         Ve[k] = Ve_Vt[k]*VT
+            
             Error       = 1.0
             iteracion   = 0
             while (Error > 0.02) and (iteracion < 100):
@@ -283,8 +314,11 @@ for i in range(NDelBe):
                     AJ      = V0/n/D
                     # V0 += DelVe
                     print(f' {AJ:^12.2f}-----','   Alguna estación se encuentra fuera de la curva cl-alfa   ','-----')
-                    check = 1
+                    with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+                        f.write(f' {AJ:^12.2f}  -----    Alguna estación se encuentra fuera de la curva cl-alfa     -----')
+                        f.write('\n')
                     
+                    check = 1
                     break
                 
                 if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
@@ -292,7 +326,7 @@ for i in range(NDelBe):
                     pb = ')'
                 
                 Cl[k] = cs3(alfa_a_g[k])
-                f = B/2 * (1-X[k]) / (X[k]*np.sin(arg[k]))
+                f = B/2 * ( 1-X[k] ) / ( X[k]*np.sin(arg[k]) )
                 
                 if f < 50.0:
                     G = np.exp(-f)
@@ -303,7 +337,7 @@ for i in range(NDelBe):
                 wt_VT[k]    = sigma_x[k]*Ve_Vt[k]*Cl[k] / ( 8.0*X[k]*F[k])
                 wa[k]       = np.sqrt( lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k]))
                 wa_VT[k]    = 0.5*(-lambda_g+wa[k])
-                alf         = (lambda_g+wa_VT[k]) / (X[k] -wt_VT[k])
+                alf         = ( lambda_g+wa_VT[k] ) / ( X[k]-wt_VT[k] )
                 alfa_i1     = np.arctan(alf) - phi[k]
                 Error       = np.abs(alfa_i1-alfa_i[k])
                 indice[k]   = iteracion
@@ -322,7 +356,7 @@ for i in range(NDelBe):
                         Ve[k] = Ve_Vt[k]*VT
                     break
                 else:
-                    alfa_i_0 = (alfa_i1+alfa_i[k])/2
+                    alfa_i_0 = ( alfa_i1+alfa_i[k] ) / 2
                 
                 if iteracion == 99:
                     print(f'Alfa_a no converge para x ={X[k]:>.2f}, V ={V0:>.2f}, Beta75 = {Be75_G:>.2f}')
@@ -330,9 +364,11 @@ for i in range(NDelBe):
             if check == 1:
                 break
             #%% Resultados
+            
         if check == 1:
             V0 += DelVe
             continue
+        
         A1 = X[0]
         B1 = X[NX-1]
         
@@ -344,7 +380,7 @@ for i in range(NDelBe):
         Integral_dkt = integrate.simpson(X,dkt)
         
         cs7 = CubicSpline(X, dkp, bc_type = 'natural')
-        Integral_dkp = integrate.simpson(X,dkp)
+        Integral_dkp = integrate.simpson(X,dkp,even='last')
         
         T       = 1.5708*rho*(R**2)*(VT**2)*Integral_dkt
         P       = 1.5708*rho*(R**2)*(VT**3)*Integral_dkp/76.05
@@ -362,12 +398,18 @@ for i in range(NDelBe):
             ETA_1 = PID/(P*76.05)
         
         if Impres == 1:
-            print(pa,f'{AJ:^11.2f} {CT:^12.2f} {CP:^12.2f} {ETA_1:^12.2f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.2f}',pb)
+            resultados = [pa,f'{AJ:^11.2f} {CT:^12.2f} {CP:^12.2f} {ETA_1:^12.2f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.2f}',pb]
+            print(' '.join(resultados))
+            with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+                f.write(' '.join(resultados))
+                f.write('\n')
+                
             if ETA_1 < 0.:
                 print(f'**********'*6)
-                DelBe0 += DelBei
-                break
-            continue
+                # DelBe0 += DelBei
+                # break
+                continue
+            # continue
         else:
             print(pa, f'{AJ:^12.2f}{CT:^12.2f}{CP:^12.2f}{ETA_1:^12.2f}\
                   {alfa_a_g[0]:^12.2f}{alfa_a_g[NX-2]:^12.2f}\
@@ -377,9 +419,9 @@ for i in range(NDelBe):
                   {Re[k]:^.2f}, k=1, {NX:^d})')
             if ETA_1 < 0.:
                 print(f'**********'*6)
-                DelBe0 += DelBei
-                break
-            break
+                # DelBe0 += DelBei
+                continue
+            # break
     DelBe0 += DelBei
 
 
