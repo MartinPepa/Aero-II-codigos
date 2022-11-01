@@ -127,7 +127,7 @@ if AlfaPer > AlfaMax:
 R       = D/2
 Omega   = np.pi*rpm/30
 VT      = Omega*R
-rho     = 0.1249*(1-2.25577/100000*h)**4.25575
+rho     = 0.1249*(1-2.25577/100000*h)**4.25575 # Unidad tecnica
 Temp    = 15.0 - 0.065*h
 mu      = 1.7894e-5 * ((Temp/15.0)**0.75)
 nu      = mu/rho
@@ -135,7 +135,7 @@ AlfMax  = AlfaMax*np.pi/180
 
 Be75    = float(cs2(0.75))
 
-AJtoV   = D*rpm/60.0
+AJtoV   = D*rpm/60.0 # Factor para convertir AJ a Velocidad
 VEi     = AJ0*AJtoV
 DelVe   = (AJf-AJ0)/NJ*AJtoV
 NVe     = NJ+1
@@ -152,7 +152,7 @@ for i in range(NDim1):
     C = 0
     cX3 = 0
 
-Integral = integrate.simpson(xD,C3)
+Integral = integrate.simpson(C3,xD,even='first')
 Fact_Act = 1e5*Integral/(16*D)
 
 alfa_rad = []
@@ -185,39 +185,42 @@ print(f'Factor de actividad AF: {Fact_Act:<.2f}')
 print('----------'*5)
 print(f'Perfil:\n\n{titulo2:<}\nCant. de puntos: {NDim2:<d}')
 print('----------'*5)
-print(f'Parámetros de la corrida:\n')
+print('Parámetros de la corrida:\n')
 print(f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |')
 print(f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |')
 print(f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |')
-print(f'X0: {X0:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |')
+print(f'X0: {X[0]:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |')
 print(f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |')
 print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:>3.1f} |')
 print(f'Impresión: {Impres:>4d} |')
 print('----------'*5)
 
-enc_01 = '__________'*6
+enc_01 = '##########'*6 + '\n'
 enc_02 = 'Resultados del programa Helian para análisis de hélices\n'
-enc_03 = '----------'*5
-enc_04 = f'Título:\n\n{titulo:<}'
-enc_05 = '----------'*5
+enc_03 = '##########'*6 + '\n'
+enc_04 = '----------'*6 + '\n' + f'Título:\n\n{titulo:<}'
+enc_05 = '----------'*6
 enc_06 = f'Hélice:\n\n{titulo1:<}\nCant. de puntos: {NDim1:<d}'
 enc_07 = f'Factor de actividad AF: {Fact_Act:<.2f}'
-enc_08 = '----------'*5
+enc_08 = '----------'*6
 enc_09 = f'Perfil:\n\n{titulo2:<}\nCant. de puntos: {NDim2:<d}'
-enc_10 = '----------'*5
-enc_11 = f'Parámetros de la corrida:\n'
+enc_10 = '----------'*6
+enc_11 = 'Parámetros de la corrida:\n'
 enc_12 = f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |'
 enc_13 = f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |'
 enc_14 = f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |'
-enc_15 = f'X0: {X0:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |'
+enc_15 = f'X0: {X[0]:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |'
 enc_16 = f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |'
 enc_17 = f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:>3.1f} |'
 enc_18 = f'Impresión: {Impres:>4d} |'
-enc_19 = '----------'*5 + '\n'
+enc_19 = '----------'*6 + '\n'
+
 
 lista_encabezado = [enc_01, enc_02, enc_03, enc_04, enc_05, enc_06, enc_07, enc_08,\
                     enc_09, enc_10, enc_11, enc_12, enc_13, enc_14, enc_15, enc_16,\
                         enc_17, enc_18, enc_19]
+for i in lista_encabezado:
+    print(i)
 
 with open('Resultados.txt', 'w', encoding = 'utf-8') as f:
     f.write('\n'.join(lista_encabezado))
@@ -237,11 +240,11 @@ for i in range(NDelBe):
     # seguir = input(f'Continuarmos? Presionar "Enter"')
     print(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
     with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
-        f.write(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n\n')
+        f.write(f'\nDelBe [º]: {DelBe_G:^4.2f} | Be75 [º]: {Be75_G:^4.2f}\n\n')
     if Impres == 1:
-        print(f'|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
+        print('|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
         with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
-            f.write(f'|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
+            f.write('|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
     #%% Ciclo interno de iteraciones
     
     for j in range(NVe-1):
@@ -321,9 +324,9 @@ for i in range(NDelBe):
                     check = 1
                     break
                 
-                if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
-                    pa = '('
-                    pb = ')'
+                # if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
+                #     pa = '('
+                #     pb = ')'
                 
                 Cl[k] = cs3(alfa_a_g[k])
                 f = B/2 * ( 1-X[k] ) / ( X[k]*np.sin(arg[k]) )
@@ -363,6 +366,9 @@ for i in range(NDelBe):
                 iteracion += 1
             if check == 1:
                 break
+            if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
+                pa = '('
+                pb = ')'
             #%% Resultados
             
         if check == 1:
@@ -398,14 +404,14 @@ for i in range(NDelBe):
             ETA_1 = PID/(P*76.05)
         
         if Impres == 1:
-            resultados = [pa,f'{AJ:^11.2f} {CT:^12.2f} {CP:^12.2f} {ETA_1:^12.2f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.2f}',pb]
+            resultados = [pa,f'{AJ:^11.2f} {CT:^12.4f} {CP:^12.4f} {ETA_1:^12.4f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-1]:^12.2f} {CL_I:^11.4f}',pb]
             print(' '.join(resultados))
             with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
                 f.write(' '.join(resultados))
                 f.write('\n')
                 
             if ETA_1 < 0.:
-                print(f'**********'*6)
+                print('**********'*6)
                 # DelBe0 += DelBei
                 # break
                 continue
@@ -418,7 +424,7 @@ for i in range(NDelBe):
                   {cd[k]:^.2f}, {alfa_i_g[k]:^.2f}, {Ve[k]:^.2f},\
                   {Re[k]:^.2f}, k=1, {NX:^d})')
             if ETA_1 < 0.:
-                print(f'**********'*6)
+                print('**********'*6)
                 # DelBe0 += DelBei
                 continue
             # break
