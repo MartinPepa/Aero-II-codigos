@@ -8,6 +8,7 @@ Created on Tue Sep 20 16:09:29 2022
 
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.interpolate import BSpline
 import matplotlib.pyplot as plt
 import csv
 from scipy import integrate
@@ -123,7 +124,7 @@ plt.show()
 
 if AlfaPer > AlfaMax:
     AlfaPer = AlfaMax
-
+tol     = 0.0001
 R       = D/2
 Omega   = np.pi*rpm/30
 VT      = Omega*R
@@ -146,12 +147,17 @@ NDelBe  = NBeta+1
 C3 = []
 cX3 = 0.0
 for i in range(NDim1):
-    C = csR[i]*R
+    C   = csR[i]*R
     cX3 = C*xD[i]**3
     C3.append(cX3)
-    C = 0
+    C   = 0
     cX3 = 0
 
+# xd = [x/100 for x in range(15,105,5)]
+
+# spline_1 = CubicSpline(xD, C3, bc_type = 'natural')
+# valor = spline_1(0.15)
+# Integral = spline_1.integrate(0.15, 1.0, extrapolate='True')
 Integral = integrate.simpson(C3,xD,even='first')
 Fact_Act = 1e5*Integral/(16*D)
 
@@ -190,13 +196,16 @@ print(f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |')
 print(f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |')
 print(f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |')
 print(f'X0: {X[0]:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |')
-print(f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |')
-print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:>3.1f} |')
+print(f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} |\
+ NBeta: {NBeta:>6d} |')
+print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} |\
+ AlfaMax: {AlfaMax:>3.1f} |')
 print(f'Impresión: {Impres:>4d} |')
 print('----------'*5)
 
 enc_01 = '##########'*6 + '\n'
-enc_02 = 'Resultados del programa Helian para análisis de hélices\n'
+enc_02 = 'Resultados del programa Helian para análisis de hélices\n\
+Versión en Python realizada por Martín Paredes\nNoviembre 2022\n'
 enc_03 = '##########'*6 + '\n'
 enc_04 = '----------'*6 + '\n' + f'Título:\n\n{titulo:<}'
 enc_05 = '----------'*6
@@ -210,15 +219,17 @@ enc_12 = f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |'
 enc_13 = f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |'
 enc_14 = f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |'
 enc_15 = f'X0: {X[0]:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |'
-enc_16 = f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} | NBeta: {NBeta:>6d} |'
-enc_17 = f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} | AlfaMax: {AlfaMax:>3.1f} |'
+enc_16 = f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} |\
+ NBeta: {NBeta:>6d} |'
+enc_17 = f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} |\
+ AlfaMax: {AlfaMax:>3.1f} |'
 enc_18 = f'Impresión: {Impres:>4d} |'
 enc_19 = '----------'*6 + '\n'
 
 
-lista_encabezado = [enc_01, enc_02, enc_03, enc_04, enc_05, enc_06, enc_07, enc_08,\
-                    enc_09, enc_10, enc_11, enc_12, enc_13, enc_14, enc_15, enc_16,\
-                        enc_17, enc_18, enc_19]
+lista_encabezado = [enc_01, enc_02, enc_03, enc_04, enc_05, enc_06, enc_07,
+                    enc_08, enc_09, enc_10, enc_11, enc_12, enc_13, enc_14,
+                    enc_15, enc_16, enc_17, enc_18, enc_19]
 for i in lista_encabezado:
     print(i)
 
@@ -227,8 +238,10 @@ with open('Resultados.txt', 'w', encoding = 'utf-8') as f:
 
 #%% Ciclo grande - Recorre los ángulos 'NBeta' ángulos Beta
 
-for i in range(NDelBe):
+for i in range(NDelBe+1):
     V0      = VEi + DelVe
+    if V0 == 0.0:
+        continue
     DelBe_G = DelBe0
     DelBe_R = DelBe_G * np.pi/180
     Beta75  = Be75 + DelBe_R
@@ -253,57 +266,60 @@ for i in range(NDelBe):
         lambda_g = V0/VT
         alfa_i_0 = 0.0000001
         
-        phi         = np.zeros(NX)
-        beta_a      = np.zeros(NX)
-        alfa_i      = np.zeros(NX)
-        alfa_i_g    = np.zeros(NX)
         alfa_a      = np.zeros(NX)
         alfa_a_g    = np.zeros(NX)
-        Ve_Vt       = np.zeros(NX)
-        # print(VE_VT[0])1
+        alfa_i      = np.zeros(NX)
+        alfa_i_g    = np.zeros(NX)
         arg         = np.zeros(NX)
-        Cl          = np.zeros(NX)
-        F           = np.zeros(NX)
-        # sigma       = np.zeros(NX)
-        wt_VT       = np.zeros(NX)
-        wa          = np.zeros(NX)
-        wa_VT       = np.zeros(NX)
-        indice      = np.zeros(NX)
+        beta_a      = np.zeros(NX)
         Cd          = np.zeros(NX)
-        dkt         = np.zeros(NX)
+        Cl          = np.zeros(NX)
+        Cl_x2       = np.zeros(NX)
         dkp         = np.zeros(NX)
+        dkt         = np.zeros(NX)
+        F           = np.zeros(NX)
+        indice      = np.zeros(NX)
+        phi         = np.zeros(NX)
         Re          = np.zeros(NX)
         Ve          = np.zeros(NX)
-        Cl_x2       = np.zeros(NX)
+        Ve_Vt       = np.zeros(NX)
+        wa          = np.zeros(NX)
+        wa_VT       = np.zeros(NX)
+        wt_VT       = np.zeros(NX)
+
+
         for k in range(NX):
             check = 0
             VE_VT_0     = np.sqrt( X[k]**2 + lambda_g**2)
             phi[k]      = np.arctan( lambda_g/X[k] ) 
             beta_a[k]   = beta_x[k]+DelBe_R
             
-            if X[k] == 1.0:
+            if X[k] == X[NX-1]:
+                fin         = 1
                 alfa_a_g[k] = -5.07
-                alfa_a[k]   = alfa_a_g*np.pi/180
+                alfa_a[k]   = alfa_a_g[k]*np.pi/180
                 Cl[k]       = 0
                 Cl_x2[k]    = 0
                 Cd[k]       = cs4(alfa_a[k])
                 VR_VT       = np.sqrt(X[k]**2+lambda_g**2)
-                phi[k]      = np.arctan(lambda_g*X[k])
+                phi[k]      = np.arctan(lambda_g/X[k])
                 alfa_i[k]   = beta_a[k]-phi[k]
                 alfa_i_g[k] = alfa_i[k]*180/np.pi
                 wt_VT[k]    = VR_VT*np.sin(alfa_i[k])*np.sin(beta_a[k])
                 wa_VT[k]    = VR_VT*np.sin(alfa_i[k])*np.cos(beta_a[k])
-                Ve_Vt[k]    = np.sqrt((X[k]-wt_VT)**2+(lambda_g+wa_VT[k])**2)
-                dkt[k]      = -sigma_x[k]*(Ve_Vt[k]**2*Cd[k]*np.sin(beta_a[k]))
-                dkp[k]      = sigma_x[k]*(Ve_Vt[k]**2*Cd[k]*np.cos(beta_a[k]))
+                Ve_Vt[k]    = np.sqrt((X[k]-wt_VT[k])**2+(lambda_g+wa_VT[k])**2)
+                dkt[k]      = -sigma_x[k]*Ve_Vt[k]**2*Cd[k]*np.sin(beta_a[k])
+                dkp[k]      = sigma_x[k]*Ve_Vt[k]**2*Cd[k]*np.cos(beta_a[k])
                 
                 if Impres == 2:
                         Re[k] = cuerda_x[k]*Ve_Vt[k]*VT/nu
                         Ve[k] = Ve_Vt[k]*VT
+                if fin == 1:
+                    continue
             
             Error       = 1.0
             iteracion   = 0
-            while (Error > 0.02) and (iteracion < 100):
+            while (Error > tol) and (iteracion < 100):
             # for l in range(100):
                 alfa_i[k]   = alfa_i_0
                 alfa_i_g[k] = alfa_i[k]*180/np.pi
@@ -338,14 +354,15 @@ for i in range(NDelBe):
                     F[k] = 1.0
                     
                 wt_VT[k]    = sigma_x[k]*Ve_Vt[k]*Cl[k] / ( 8.0*X[k]*F[k])
-                wa[k]       = np.sqrt( lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k]))
+                wa[k]       = np.sqrt( lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k]) )
                 wa_VT[k]    = 0.5*(-lambda_g+wa[k])
+                VE_VT_0     = np.sqrt( (X[k]-wt_VT[k])**2 + (lambda_g+wa_VT[k])**2 )
                 alf         = ( lambda_g+wa_VT[k] ) / ( X[k]-wt_VT[k] )
                 alfa_i1     = np.arctan(alf) - phi[k]
                 Error       = np.abs(alfa_i1-alfa_i[k])
                 indice[k]   = iteracion
                 
-                if Error <= 0.02:
+                if Error <= tol:
                     Cd[k]       = cs4(alfa_a[k])
                     kt1         = sigma_x[k]*Ve_Vt[k]**2
                     kt2         = Cl[k]*np.cos(arg[k])-Cd[k]*np.sin(arg[k])
@@ -379,14 +396,14 @@ for i in range(NDelBe):
         B1 = X[NX-1]
         
         cs5 = CubicSpline(X, Cl_x2, bc_type = 'natural')
-        Integral_cs5 = integrate.simpson(X,Cl_x2)
+        Integral_cs5 = integrate.simpson(Cl_x2, X, even = 'first')
         CL_I = 3*Integral_cs5
         
         cs6 = CubicSpline(X, dkt, bc_type = 'natural')
-        Integral_dkt = integrate.simpson(X,dkt)
+        Integral_dkt = integrate.simpson(dkt, X, even = 'first')
         
         cs7 = CubicSpline(X, dkp, bc_type = 'natural')
-        Integral_dkp = integrate.simpson(X,dkp,even='last')
+        Integral_dkp = integrate.simpson(dkp, X, even = 'first')
         
         T       = 1.5708*rho*(R**2)*(VT**2)*Integral_dkt
         P       = 1.5708*rho*(R**2)*(VT**3)*Integral_dkp/76.05
@@ -404,7 +421,7 @@ for i in range(NDelBe):
             ETA_1 = PID/(P*76.05)
         
         if Impres == 1:
-            resultados = [pa,f'{AJ:^11.2f} {CT:^12.4f} {CP:^12.4f} {ETA_1:^12.4f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-1]:^12.2f} {CL_I:^11.4f}',pb]
+            resultados = [pa,f'{AJ:^11.2f} {CT:^12.4f} {CP:^12.4f} {ETA_1:^12.4f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.4f}',pb]
             print(' '.join(resultados))
             with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
                 f.write(' '.join(resultados))

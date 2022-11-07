@@ -1,17 +1,17 @@
 Titulo,TPº 5 Analizar hélice RAF-6
 AJ0,0.0
-AJf,2.0
-NJ,100
+AJf,1.0
+NJ,50
 rpm,1400.0
 h,0.0
 B,2
 D,2.895
-X0,0.4
+X0,0.30
 DeltaX,0.1
-NX,6
-Beta75i,20.0
-Beta75f,50.0
-NBeta,15
+NX,8
+Beta75i,25.0
+Beta75f,34.0
+NBeta,9
 AlfaMin,-4.
 AlfaPer,12.
 AlfaMax,34.
