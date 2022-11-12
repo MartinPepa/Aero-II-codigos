@@ -1,3 +1,4 @@
+
 Estaciones,Cuerdas adimensionales,Ángulos de alabeo
 0.1,0.08,-0.01396
 0.2,0.08,-.0279
@@ -15,7 +16,7 @@ Velocidad angular [1/s]:,25
 Radio del disco [m]:,2.5
 Valor inicial de 'x':,0.3
 Número de palas:,4
-Numero de estaciones segun 'x':,8
+Numero de estaciones segun 'x':,7
 Densidad [kg/m3]:,1.225
 Velocidad del sonido [m/s]:,340
 Ángulo de paso colectivo inicial [º]:,9
