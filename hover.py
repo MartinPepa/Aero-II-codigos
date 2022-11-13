@@ -141,9 +141,15 @@ spline_cdp9 = CubicSpline(alfa, CDp9, bc_type = 'natural')
 #%% Cálculo de tabla
 
 theta = theta_0
+titulo_txt = '\nResultados de condicion de Hovering\n'
+with open('Resultados-Hover.txt', 'w', encoding = 'utf-8') as f:
+    f.write('##########'*8 + titulo_txt + '##########'*8)
 
 while theta <= theta_f:
-    print('|  N  | X(N)  |  ZMach  |   AlfMax   |')
+    fila1 = '\n|  N  | X(N)  |  ZMach  |   AlfMax   |\n' 
+    print(fila1)
+    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        f.write(fila1)
     tol = 0.002
     
     #DN          = NX + 0.000001
@@ -152,7 +158,7 @@ while theta <= theta_f:
     VT          = Omega*R
     lambda_g    = Vasc/VT
     alfa_i_0    = 0.017
-    NX          = NX + 1
+    #NX          = NX + 1
     
     alfa_a  = np.zeros(NX)
     alfa_i  = np.zeros(NX)
@@ -175,7 +181,7 @@ while theta <= theta_f:
     for i in range(NX):
         X[i] = x0
         
-        if i == NX:
+        if i == NX-1:
             X[i]        = 1.0
         c[i]        = spline_cuerda(X[i])
         sigma[i]    = B*c[i]/np.pi
@@ -240,7 +246,10 @@ while theta <= theta_f:
                     else:
                         wa[i] = np.sqrt(abs(lambda_g**2
                                              + 4.0*wt_VT[i]*(X[i]-wt_VT[i])))
-                        print('Warning: Solución compleja.')
+                        warning = 'Warning: Solución compleja'
+                        print(warning)
+                        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+                            f.write(warning)
                 elif (X[i]-1.0) == 0:
                      alfa_a[i] = 0.0
                 else:
@@ -255,7 +264,10 @@ while theta <= theta_f:
                     else:
                         wa[i] = np.sqrt(abs(lambda_g**2
                                              + 4.0*wt_VT[i]*(X[i]-wt_VT[i])))
-                        print('Warning: Solución compleja.')
+                        warning = 'Warning: Solución compleja'
+                        print(warning)
+                        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+                            f.write(warning)
                 elif (X[i]-1.0) == 0:
                      alfa_a[i] = 0.0
                 else:
@@ -271,8 +283,10 @@ while theta <= theta_f:
             
             k += 1
             if k == 60:
-                print(f'ALFAA(I) >= ALFMAX EN I= {i:>3d}. También número de itera\
-                      ciones mayor a 60')
+                max_iter = f'ALFAA(I) >= ALFMAX EN I= {i:>3d}. También número de iteraciones mayor a 60'
+                print(max_iter)
+                with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+                    f.write(max_iter)
             alfa_i_0 = (alfii + alfa_i[i])/2.0
         
         if ZMach <= 0.3:
@@ -315,8 +329,15 @@ while theta <= theta_f:
         kp2     = Cl[i]*np.sin(arg[i])+Cd[i]*np.cos(arg[i])
         dkp[i]  = kp1*kp2
         x0      = X[i] + Delta_X
-        print(f'{i:>8d} {X[i]:>8.2f} {ZMach:>8.2f} {AlfaMax:>8.2f}')
-    print(f'{NX:>8d} {X[NX-1]:>8.2f} {ZMach:>8.2f} {AlfaMax:>8.2f}')
+        result1 = f'{i:>8d} {X[i]:>8.2f} {ZMach:>8.2f} {AlfaMax:>8.2f}' 
+        print(result1)
+        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+            f.write(result1 + '\n')
+        #result1 = ''
+    result2 = f'{NX:>8d} {X[NX-1]:>8.2f} {ZMach:>8.2f} {AlfaMax:>8.2f}'
+    print(result2)
+    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        f.write(result2)
     Beta1 = spline_beta(X[NX-1])
     beta_a[NX-1] = Beta1 + theta
     VR_VT = np.sqrt(X[NX-1]**2 + lambda_g**2)
@@ -353,32 +374,63 @@ while theta <= theta_f:
     
     #%% Impresión de resultados
     
-    print('\n'+'----------'*6)
-    print('\nResultados del análisis\n')
-    print(f'Vasc = {Vasc:>6.2f} [m/s]   |   Omega = {Omega:>6.2f} [1/s]')
-    print(f' R   = {R:>6.2f} [m]   |   B = {B:>6d}')
-    print(f' Beta75 = {Beta75:>6.2f} [rad] (Be75 + theta)')
-    print(f' Theta = {theta:>6.2f} [rad]\n')
+    cadena1 = '\n'+'----------'*6
+    cadena2 = '\nResultados del análisis\n'
+    cadena3 = f'Vasc = {Vasc:>6.2f} [m/s]   |   Omega = {Omega:>6.2f} [1/s]'
+    cadena4 = f' R   = {R:>6.2f} [m]   |   B = {B:>6d}'
+    cadena5 = f' Beta75 = {Beta75:>6.4f} [rad] (Be75 + theta)'
+    cadena6 = f' Theta = {theta:>6.4f} [rad]\n'
+    cadena7 = f'\nCT = {CT:>5.4f}   |   CP = {CP:>5.4f}'
+    cadena8 = f'J = {AJ:5.4f}   |   Efic = {eta1:>5.4f}\n'
+    cadena9 = f'| Tracción [kg] = {T:>8.2f} |\n| Potencia [HP] = {P:>8.2f} |\n| Eficiencia [-] = {ETA:>5.4} |'
+    print(cadena1)
+    print(cadena2)
+    print(cadena3)
+    print(cadena4)
+    print(cadena5)
+    print(cadena6)
     
-    print(f'\nCT = {CT:>5.4f}   |   CP = {CP:>5.4f}')
-    print(f'J = {AJ:5.4f}   |   Efic = {eta1:>5.4f}\n')
-    print(f'| Tracción [kg] = {T:>8.2f} |\n| Potencia [HP] = {P:>8.2f} |\n| Eficiencia [-] = {ETA:>5.4} |')
+    print(cadena7)
+    print(cadena8)
+    print(cadena9)
           
+    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        f.write(cadena1 + cadena2 + cadena3 + '\n' + cadena4 + '\n' 
+                + cadena5 + '\n' + cadena6 + cadena7 + cadena8 + cadena9)
     if ETA < 0:
-        print('Eficiencia negativa.')
-        print('##########'*8)
+        eta0 = 'Eficiencia negativa.\n'
+        sharp1 = '##########'*8
+        print(eta0)
+        print(sharp1)
+        with open('Resultados-Hover', 'a', encoding = 'utf-8') as f:
+            f.write(eta0, sharp1)
     elif ETA == 0:
         PID = (T**1.5)/(np.sqrt(2*np.pi*rho*R**2))
         Mer = PID/(P*76.05)
-        print(f' M [-] = {Mer:>5.4f}')
+        merito = f' M [-] = {Mer:>5.4f}'
+        print(merito)
+        with open('Resultados-Hover', 'a', encoding = 'utf-8') as f:
+            f.write(merito)
     else:
-        print('No hay Factor de Mérito si asciende.')
+        merito2 = '\nNo hay Factor de Mérito si asciende.' 
+        print(merito2)
+        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+            f.write(merito2)
     
-    print('\n   Alfa   |   CL   |   CD   |   Vind   |')
-    for i in range(NX):
-        print(f'{alfa_a[i]:>6.4f} {Cl[i]:>5.4f} {Cd[i]:>5.4f} {wa_VT[i]:>5.4f}')
-    print('##########'*8)
+    fila2 ='\n   Alfa   |   CL   |   CD   |   Vind   |' 
+    print(fila2)
+    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        f.write(fila2)
+    for j in range(NX):
+        result_fin = f'{alfa_a[j]:>6.4f} {Cl[j]:>5.4f} {Cd[j]:>5.4f} {wa_VT[j]:>5.4f}'
+        print(result_fin)
+        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+            f.write('\n' + result_fin)
+    cadena_final = '##########'*8
+    print(cadena_final)
+    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        f.write('\n' + cadena_final + '\n')
     
-    theta += delta_theta/57.3
-
+    theta = theta*57.3 + delta_theta
+    
 #%%
