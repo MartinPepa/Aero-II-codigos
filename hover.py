@@ -148,7 +148,7 @@ with open('Resultados-Hover.txt', 'w', encoding = 'utf-8') as f:
     f.write('##########'*8 + titulo_txt + '##########'*8)
 
 while theta <= theta_f:
-    fila1 = '\n\n|    N    |   X(N)  |  ZMach  |  AlfMax |\n' 
+    fila1 = '\n\n|    N    |   X(N)   |  ZMach   |  AlfMax  |\n' 
     print(fila1)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
         f.write(fila1)
@@ -333,12 +333,12 @@ while theta <= theta_f:
         kp2     = Cl[i]*np.sin(arg[i])+Cd[i]*np.cos(arg[i])
         dkp[i]  = kp1*kp2
         X0      = X[i] + Delta_X
-        result1 = f' {i+1:^9d} {X[i]:^9.2f} {ZMach:^9.2f} {AlfaMax:^9.2f} ' 
+        result1 = f' {i+1:^9d} {X[i]:^10.3f} {ZMach:^10.3f} {AlfaMax:^10.3f} ' 
         print(result1)
         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
             f.write(result1 + '\n')
         #result1 = ''
-    result2 = f' {NX:^9d} {X[NX-1]:^9.2f} {ZMach:^9.2f} {AlfaMax:^9.2f} '
+    result2 = f' {NX:^9d} {X[NX-1]:^10.3f} {ZMach:^10.3f} {AlfaMax:^10.3f} '
     print(result2)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
         f.write(result2)
@@ -383,7 +383,7 @@ while theta <= theta_f:
     cadena3 = f'Vasc   = {Vasc:>6.2f} [m/s]  |  Omega = {Omega:>6.2f} [1/s]'
     cadena4 = f'R      = {R:>6.2f} [m]    |  B     = {B:>6d}'
     cadena5 = f'Beta75 = {Beta75:>6.4f} [rad] (Be75 + theta)'
-    cadena6 = f'Theta  = {theta:>6.4f} [rad]\n'
+    cadena6 = f'Theta  = {theta:>6.4f}[rad] / {theta*57.3:>6.2f} [º]\n'
     cadena7 = f'\n|  CT = {CT:>5.4f}  |  CP   = {CP:>5.4f}  |'
     cadena8 = f'\n|  J  = {AJ:5.4f}  |  Efic = {eta1:>5.4f}  |'
     cadena9 = f'\n| Tracción [kg]  = {T:>8.2f} |\n\
@@ -414,7 +414,7 @@ while theta <= theta_f:
         Mer = PID/(P*76.05)
         merito = f' M [-] = {Mer:>5.4f}'
         print(merito)
-        with open('Resultados-Hover', 'a', encoding = 'utf-8') as f:
+        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
             f.write(merito)
     else:
         merito2 = '\nNo hay Factor de Mérito si asciende.' 
