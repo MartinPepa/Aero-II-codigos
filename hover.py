@@ -141,6 +141,7 @@ spline_cdp9 = CubicSpline(alfa, CDp9, bc_type = 'natural')
 #%% Cálculo de tabla
 
 theta = theta_0
+tol = 0.002
 titulo_txt = '\n\nResultados de condicion de Hovering\n\
 Código adaptado de Fortran77 a Python realizado por Martín Paredes\n\
 Noviembre de 2022\n\n'
@@ -148,12 +149,12 @@ with open('Resultados-Hover.txt', 'w', encoding = 'utf-8') as f:
     f.write('##########'*8 + titulo_txt + '##########'*8)
 
 while theta <= theta_f:
+    angulo = f'\n\nResultados para el ángulo de paso colectivo: {theta:>5.2f} [º]'
     fila1 = '\n\n|    N    |   X(N)   |  ZMach   |  AlfMax  |\n' 
     print(fila1)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
-        f.write(fila1)
-    tol = 0.002
-    
+        f.write(angulo + fila1)
+        
     #DN          = NX + 0.000001
     Delta_X     = (1.0 - x0)/(NX-1)
     theta       = theta/57.3
@@ -179,8 +180,8 @@ while theta <= theta_f:
     wt_VT   = np.zeros(NX)
     wa      = np.zeros(NX)
     wa_VT   = np.zeros(NX)
-    ce      = spline_cuerda(1.0)
-    print(ce)
+    #ce      = spline_cuerda(1.0)
+    #print(ce)
     for i in range(NX):
         
         X[i]    = X0
@@ -206,7 +207,7 @@ while theta <= theta_f:
             
             AlfaMax = AlfaMax/57.3
             arg[i] = phi[i] + alfa_i[i]
-            alfa_a[i] = beta_a[i] -arg[i]
+            alfa_a[i] = beta_a[i] - arg[i]
             if (alfa_a[i] - AlfaMax) > 0:
                 arg[i] = beta_a[i] - AlfaMax
                 alfa_i_0 = arg[i] - phi[i] #################### SOLUCIONAR ACA
@@ -250,17 +251,17 @@ while theta <= theta_f:
                     else:
                         wa[i] = np.sqrt(abs(lambda_g**2
                                              + 4.0*wt_VT[i]*(X[i]-wt_VT[i])))
-                        warning = 'Warning: Solución compleja'
+                        warning = 'Warning: Solución compleja.'
                         print(warning)
                         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
                             f.write(warning)
                 elif (X[i]-1.0) == 0:
                      alfa_a[i] = 0.0
                 else:
-                     alfa_a[NX] =0.0
+                     alfa_a[NX] = 0.0
             elif (f - 50.0) < 0:
                 G = np.exp(-f)
-                if (X[i]-1.0) < 0:
+                if (X[i]-1.0) < 0.0:
                     F[i] = 0.63662*np.arccos(G)
                     wt_VT[i] = sigma[i]*VeVT[i]*Cl[i]/(8.0*X[i]*F[i])
                     if wt_VT[i] >= 0.0:
@@ -268,16 +269,19 @@ while theta <= theta_f:
                     else:
                         wa[i] = np.sqrt(abs(lambda_g**2
                                              + 4.0*wt_VT[i]*(X[i]-wt_VT[i])))
-                        warning = 'Warning: Solución compleja'
+                        warning = 'Warning: Solución compleja.'
                         print(warning)
                         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
                             f.write(warning)
-                elif (X[i]-1.0) == 0:
+                elif (X[i]-X[NX-1]) == 0.0:
                      alfa_a[i] = 0.0
+                     break
                 else:
-                     alfa_a[NX-1] =0.0
+                     alfa_a[NX-1] = 0.0
+                     Cl[NX-1] = 0.0
+                     break ########## SOLUCIONAR ACA
             wa_VT[i] = (-lambda_g + wa[i])/2
-            VEVT_0 = np.sqrt((X[i]-wt_VT[i])**2.0 + (lambda_g+wa_VT[i])**2)
+            VEVT_0 = np.sqrt((X[i]-wt_VT[i])**2.0 + (lambda_g+wa_VT[i])**2.0)
             alf = (lambda_g + wa_VT[i]) / (X[i]-wt_VT[i])
             alfii = np.arctan(alf) - phi[i]
             Error = abs(alfii - alfa_i[i])
@@ -296,31 +300,31 @@ while theta <= theta_f:
         if ZMach <= 0.3:
             Cd[i] = spline_cdp3(alfa_a[i])
         elif (ZMach > 0.3) and (ZMach <= 0.4):
-            Cd3 = spline_cdp3(alfa_a[i])
-            Cd4 = spline_cdp4(alfa_a[i])
-            Cd[i] = (Cd4 - Cd3)*10.0*(ZMach-0.3)+Cd3
+            Cd3     = spline_cdp3(alfa_a[i])
+            Cd4     = spline_cdp4(alfa_a[i])
+            Cd[i]   = (Cd4 - Cd3)*10.0*(ZMach-0.3)+Cd3
         elif (ZMach > 0.4) and (ZMach <= 0.5):
-            Cd4 = spline_cdp4(alfa_a[i])
-            Cd5 = spline_cdp5(alfa_a[i])
-            Cd[i] = (Cd5 - Cd4)*10.0*(ZMach-0.4)+Cd4
+            Cd4     = spline_cdp4(alfa_a[i])
+            Cd5     = spline_cdp5(alfa_a[i])
+            Cd[i]   = (Cd5 - Cd4)*10.0*(ZMach-0.4)+Cd4
         elif (ZMach > 0.5) and (ZMach <= 0.6):
-            Cd5 = spline_cdp5(alfa_a[i])
-            Cd6 = spline_cdp6(alfa_a[i])
-            Cd[i] = (Cd6 - Cd5)*10.0*(ZMach-0.5)+Cd5
+            Cd5     = spline_cdp5(alfa_a[i])
+            Cd6     = spline_cdp6(alfa_a[i])
+            Cd[i]   = (Cd6 - Cd5)*10.0*(ZMach-0.5)+Cd5
         elif (ZMach > 0.6) and (ZMach <= 0.7):
-            Cd6 = spline_cdp6(alfa_a[i])
-            Cd7 = spline_cdp7(alfa_a[i])
-            Cd[i] = (Cd7 - Cd6)*10.0*(ZMach-0.6)+Cd6
+            Cd6     = spline_cdp6(alfa_a[i])
+            Cd7     = spline_cdp7(alfa_a[i])
+            Cd[i]   = (Cd7 - Cd6)*10.0*(ZMach-0.6)+Cd6
         elif (ZMach > 0.7) and (ZMach <= 0.8):
-            Cd7 = spline_cdp7(alfa_a[i])
-            Cd8 = spline_cdp8(alfa_a[i])
-            Cd[i] = (Cd8 - Cd7)*10.0*(ZMach-0.7)+Cd7
+            Cd7     = spline_cdp7(alfa_a[i])
+            Cd8     = spline_cdp8(alfa_a[i])
+            Cd[i]   = (Cd8 - Cd7)*10.0*(ZMach-0.7)+Cd7
         elif (ZMach > 0.8) and (ZMach <= 0.9):
-            Cd8 = spline_cdp8(alfa_a[i])
-            Cd9 = spline_cdp9(alfa_a[i])
-            Cd[i] = (Cd9 - Cd8)*10.0*(ZMach-0.8)+Cd8
+            Cd8     = spline_cdp8(alfa_a[i])
+            Cd9     = spline_cdp9(alfa_a[i])
+            Cd[i]   = (Cd9 - Cd8)*10.0*(ZMach-0.8)+Cd8
         else:
-            Cd[i] = spline_cdp9(alfa_a[i])
+            Cd[i]   = spline_cdp9(alfa_a[i])
         
         if X[i] == 1.0:
             alfa_a[NX-1] = 0.0
@@ -342,16 +346,16 @@ while theta <= theta_f:
     print(result2)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
         f.write(result2)
-    Beta1 = spline_beta(X[NX-1])
+    Beta1       = spline_beta(X[NX-1])
     beta_a[NX-1] = Beta1 + theta
-    VR_VT = np.sqrt(X[NX-1]**2 + lambda_g**2)
-    phi[NX-1] = np.arctan(lambda_g/X[NX-1])
+    VR_VT       = np.sqrt(X[NX-1]**2 + lambda_g**2)
+    phi[NX-1]   = np.arctan(lambda_g/X[NX-1])
     alfa_i[NX-1] = beta_a[NX-1] - phi[NX-1]
     wt_VT[NX-1] = VR_VT*np.sin(alfa_i[NX-1])*np.sin(beta_a[NX-1])
     wa_VT[NX-1] = VR_VT*np.sin(alfa_i[NX-1])*np.cos(beta_a[NX-1])
-    VeVT[NX-1] = np.sqrt((X[NX-1]-wt_VT[NX-1])**2 + (lambda_g+wa_VT[NX-1])**2)
-    dkt[NX-1] = -sigma[NX-1]*(VeVT[NX-1]**2)*Cd[NX-1]*np.sin(beta_a[NX-1])
-    dkp[NX-1] = sigma[NX-1]*(VeVT[NX-1]**2)*Cd[NX-1]*np.cos(beta_a[NX-1])
+    VeVT[NX-1]  = np.sqrt((X[NX-1]-wt_VT[NX-1])**2 + (lambda_g+wa_VT[NX-1])**2)
+    dkt[NX-1]   = -sigma[NX-1]*(VeVT[NX-1]**2)*Cd[NX-1]*np.sin(beta_a[NX-1])
+    dkp[NX-1]   = sigma[NX-1]*(VeVT[NX-1]**2)*Cd[NX-1]*np.cos(beta_a[NX-1])
     
     
     #%% Cálculos finales
@@ -362,11 +366,11 @@ while theta <= theta_f:
     tkt = integrate.simpson(dkt, X, even = 'first')
     pkp = integrate.simpson(dkp, X, even = 'first')
     
-    T = np.pi/2*rho*(R**2)*(VT**2)*tkt
-    P = np.pi/2*rho*(R**2)*(VT**3)*pkp/76.05
+    T   = np.pi/2*rho*(R**2)*(VT**2)*tkt
+    P   = np.pi/2*rho*(R**2)*(VT**3)*pkp/76.05
     ETA = T*Vasc/(P*76.05)
-    n = Omega/(6.2832)
-    AJ = Vasc/(n*2*R)
+    n   = Omega/(2*np.pi)
+    AJ  = Vasc/(n*2*R)
     
     CT = T/(rho*(VT**2)*np.pi*R**2)
     CP = P*76.05/(rho*(VT**3)*np.pi*(R**2))
@@ -379,15 +383,15 @@ while theta <= theta_f:
     #%% Impresión de resultados
     
     cadena1 = '\n\n'+'----------'*6 + '\n'
-    cadena2 = '\nResultados del análisis\n\n'
+    cadena2 = 'Resultados del análisis\n\n'
     cadena3 = f'Vasc   = {Vasc:>6.2f} [m/s]  |  Omega = {Omega:>6.2f} [1/s]'
     cadena4 = f'R      = {R:>6.2f} [m]    |  B     = {B:>6d}'
     cadena5 = f'Beta75 = {Beta75:>6.4f} [rad] (Be75 + theta)'
-    cadena6 = f'Theta  = {theta:>6.4f}[rad] / {theta*57.3:>6.2f} [º]\n'
+    cadena6 = f'Theta  = {theta:>6.4f} [rad] / {theta*57.3:>6.2f} [º]\n'
     cadena7 = f'\n|  CT = {CT:>5.4f}  |  CP   = {CP:>5.4f}  |'
     cadena8 = f'\n|  J  = {AJ:5.4f}  |  Efic = {eta1:>5.4f}  |'
     cadena9 = f'\n| Tracción [kg]  = {T:>8.2f} |\n\
-| Potencia [HP]  = {P:>8.2f} |\n| Eficiencia [-] = {ETA:>5.4}    |'
+| Potencia [HP]  = {P:>8.2f} |\n| Eficiencia [-] = {ETA:>8.4} |'
     print(cadena1)
     print(cadena2)
     print(cadena3)
@@ -404,15 +408,15 @@ while theta <= theta_f:
                 + cadena5 + '\n' + cadena6 + cadena7 + cadena8 + cadena9)
     if ETA < 0:
         eta0 = '\nEficiencia negativa.\n'
-        sharp1 = '##########'*8
+        sharp1 = '##########'*4
         print(eta0)
         print(sharp1)
-        with open('Resultados-Hover', 'a', encoding = 'utf-8') as f:
-            f.write(eta0, sharp1)
+        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+            f.write(eta0 + sharp1)
     elif ETA == 0:
         PID = (T**1.5)/(np.sqrt(2*np.pi*rho*R**2))
         Mer = PID/(P*76.05)
-        merito = f' M [-] = {Mer:>5.4f}'
+        merito = f'\n| M [-] = {Mer:>5.4f}|'
         print(merito)
         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
             f.write(merito)
@@ -434,7 +438,7 @@ while theta <= theta_f:
     cadena_final = '##########'*8
     print(cadena_final)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
-        f.write('\n'*2 + cadena_final + '\n')
+        f.write('\n'*2 + cadena_final)
     
     theta = theta*57.3 + delta_theta
     
