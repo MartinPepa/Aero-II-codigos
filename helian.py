@@ -217,7 +217,7 @@ enc_10 = '----------'*6
 enc_11 = 'Parámetros de la corrida:\n'
 enc_12 = f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |'
 enc_13 = f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |'
-enc_14 = f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |'
+enc_14 = f'Nº de palas: {B:>2d} | D [m]: {D:>8.4f} |'
 enc_15 = f'X0: {X[0]:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |'
 enc_16 = f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} |\
  NBeta: {NBeta:>6d} |'
@@ -233,12 +233,18 @@ lista_encabezado = [enc_01, enc_02, enc_03, enc_04, enc_05, enc_06, enc_07,
 for i in lista_encabezado:
     print(i)
 
-with open('Resultados.txt', 'w', encoding = 'utf-8') as f:
+with open('Resultados-Helian.txt', 'w', encoding = 'utf-8') as f:
     f.write('\n'.join(lista_encabezado))
+with open('Resultados-Helian.csv', 'w', newline = '', encoding = 'utf-8') as g:
+    enc_csv = csv.writer(g)
+    enc_csv.writerow(['J','Cp','Eta'])
 
 #%% Ciclo grande - Recorre los ángulos 'NBeta' ángulos Beta
 
-for i in range(NDelBe+1):
+fig, grafico = plt.subplots(dpi=500)
+# levels = np.linspace(0.0,1.0,10)
+
+for i in range(NDelBe):
     V0      = VEi + DelVe
     if V0 == 0.0:
         continue
@@ -246,17 +252,19 @@ for i in range(NDelBe+1):
     DelBe_R = DelBe_G * np.pi/180
     Beta75  = Be75 + DelBe_R
     Be75_G  = Beta75 * 180/np.pi
-
+    
+    parametros = [[],[],[]]
+    
     #%% Titulo B
     
     seguir = 0
     # seguir = input(f'Continuarmos? Presionar "Enter"')
     print(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
-    with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+    with open('Resultados-helian.txt', 'a', encoding = 'utf-8') as f:
         f.write(f'\nDelBe [º]: {DelBe_G:^4.2f} | Be75 [º]: {Be75_G:^4.2f}\n\n')
     if Impres == 1:
         print('|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
-        with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+        with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
             f.write('|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
     #%% Ciclo interno de iteraciones
     
@@ -326,38 +334,33 @@ for i in range(NDelBe+1):
                 Ve_Vt[k]    = VE_VT_0
                 arg[k]      = phi[k] + alfa_i[k]
                 alfa_a[k]   = beta_a[k] - phi[k] - alfa_i[k]
-                alfa_a_g[k] = alfa_a[k] * 180/np.pi
+                alfa_a_g[k] = alfa_a[k]*180/np.pi
                 
                 if ( alfa_a_g[k] > AlfaMax ) or ( alfa_a_g[k] < AlfaMin ):
-                    n       = Omega/6.2832
-                    AJ      = V0/n/D
-                    # V0 += DelVe
+                    n       = Omega/(2*np.pi)
+                    AJ      = V0/(n*D)
                     print(f' {AJ:^12.2f}-----','   Alguna estación se encuentra fuera de la curva cl-alfa   ','-----')
-                    with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+                    with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
                         f.write(f' {AJ:^12.2f}  -----    Alguna estación se encuentra fuera de la curva cl-alfa     -----')
                         f.write('\n')
                     
                     check = 1
                     break
                 
-                # if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
-                #     pa = '('
-                #     pb = ')'
-                
                 Cl[k] = cs3(alfa_a_g[k])
-                f = B/2 * ( 1-X[k] ) / ( X[k]*np.sin(arg[k]) )
+                f = B/2*(1-X[k])/(X[k]*np.sin(arg[k]))
                 
                 if f < 50.0:
                     G = np.exp(-f)
-                    F[k] = 2/np.pi * np.arccos(G)
+                    F[k] = 2/np.pi*np.arccos(G)
                 else:
                     F[k] = 1.0
                     
-                wt_VT[k]    = sigma_x[k]*Ve_Vt[k]*Cl[k] / ( 8.0*X[k]*F[k])
-                wa[k]       = np.sqrt( lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k]) )
+                wt_VT[k]    = sigma_x[k]*Ve_Vt[k]*Cl[k]/(8.0*X[k]*F[k])
+                wa[k]       = np.sqrt(lambda_g**2 + 4.0*wt_VT[k]*(X[k]-wt_VT[k]))
                 wa_VT[k]    = 0.5*(-lambda_g+wa[k])
-                VE_VT_0     = np.sqrt( (X[k]-wt_VT[k])**2 + (lambda_g+wa_VT[k])**2 )
-                alf         = ( lambda_g+wa_VT[k] ) / ( X[k]-wt_VT[k] )
+                VE_VT_0     = np.sqrt((X[k]-wt_VT[k])**2+(lambda_g+wa_VT[k])**2)
+                alf         = (lambda_g+wa_VT[k])/(X[k]-wt_VT[k])
                 alfa_i1     = np.arctan(alf) - phi[k]
                 Error       = np.abs(alfa_i1-alfa_i[k])
                 indice[k]   = iteracion
@@ -376,7 +379,7 @@ for i in range(NDelBe+1):
                         Ve[k] = Ve_Vt[k]*VT
                     break
                 else:
-                    alfa_i_0 = ( alfa_i1+alfa_i[k] ) / 2
+                    alfa_i_0 = (alfa_i1+alfa_i[k])/2
                 
                 if iteracion == 99:
                     print(f'Alfa_a no converge para x ={X[k]:>.2f}, V ={V0:>.2f}, Beta75 = {Be75_G:>.2f}')
@@ -408,8 +411,8 @@ for i in range(NDelBe+1):
         T       = 1.5708*rho*(R**2)*(VT**2)*Integral_dkt
         P       = 1.5708*rho*(R**2)*(VT**3)*Integral_dkp/76.05
         ETA     = T*V0/P/76.05
-        n       = Omega/6.2832
-        AJ      = V0/n/D
+        n       = Omega/(2*np.pi)
+        AJ      = V0/(n*D)
         CT      = 3.8759*Integral_dkt
         CP      = 12.1761*Integral_dkp
         ETA_1   = AJ*CT/np.abs(CP)
@@ -423,10 +426,16 @@ for i in range(NDelBe+1):
         if Impres == 1:
             resultados = [pa,f'{AJ:^11.2f} {CT:^12.4f} {CP:^12.4f} {ETA_1:^12.4f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.4f}',pb]
             print(' '.join(resultados))
-            with open('Resultados.txt', 'a', encoding = 'utf-8') as f:
+            with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
                 f.write(' '.join(resultados))
                 f.write('\n')
-                
+            if pa == ' ':
+                parametros[0].append(AJ)
+                parametros[1].append(CP)
+                parametros[2].append(ETA_1)
+                with open('Resultados-Helian.csv', 'a', newline = '', encoding = 'utf-8') as g:
+                    fila = csv.writer(g)
+                    fila.writerow([AJ, CP, ETA_1])
             if ETA_1 < 0.:
                 print('**********'*6)
                 # DelBe0 += DelBei
@@ -446,7 +455,27 @@ for i in range(NDelBe+1):
                 continue
             # break
     DelBe0 += DelBei
-
-
-
+    
+    for i, rend in enumerate(parametros[2]):
+        if rend <= 0.1:
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,0/255,255/255]])
+        elif (rend > 0.1) and (rend <= 0.2):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,128/255,255/255]])
+        elif (rend > 0.2) and (rend <= 0.3):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,255/255,255/255]])
+        elif (rend > 0.3) and (rend <= 0.4):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,255/255,128/255]])
+        elif (rend > 0.4) and (rend <= 0.5):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,255/255,0/255]])
+        elif (rend > 0.5) and (rend <= 0.6):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[128/255,255/255,0/255]])
+        elif (rend > 0.6) and (rend <= 0.7):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[255/255,255/255,0/255]])
+        elif (rend > 0.7) and (rend <= 0.8):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[255/255,128/255,0/255]])
+        elif (rend > 0.8) and (rend <= 0.9):
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[255/255,0/255,0/255]])
+        else:
+            grafico.scatter(parametros[0][i],parametros[1][i],c=[[204/255,0/255,0/255]])
+plt.show()
 

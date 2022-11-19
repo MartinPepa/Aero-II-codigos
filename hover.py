@@ -147,6 +147,9 @@ Código adaptado de Fortran77 a Python realizado por Martín Paredes\n\
 Noviembre de 2022\n\n'
 with open('Resultados-Hover.txt', 'w', encoding = 'utf-8') as f:
     f.write('##########'*8 + titulo_txt + '##########'*8)
+# with open('Resultados-Hover.csv', 'w', newline = '', encoding = 'utf-8') as g:
+#     enc_csv = csv.writer(g)
+    # enc_csv.writerow()
 
 while theta <= theta_f:
     angulo = f'\n\nResultados para el ángulo de paso colectivo: {theta:>5.2f} [º]'
