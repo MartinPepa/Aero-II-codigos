@@ -12,6 +12,7 @@ from scipy.interpolate import BSpline
 import matplotlib.pyplot as plt
 import csv
 from scipy import integrate
+plt.close(fig = 'all')
 
 #%% Funciones
 
@@ -102,7 +103,11 @@ ax.plot(xD, beta   , 'x', label = 'beta [rad]')
 ax.plot(xD, cs1(xD), label = 'spline csr')
 ax.plot(xD, cs2(xD), label = 'spline beta')
 ax.set_xlim(0.0,1.0)
+ax.set_ylim(0.0,0.5)
 ax.legend(loc='upper right',ncol=1)
+ax.set_xlabel('r/R [adim]')
+ax.set_ylabel('beta [rad] | c/R [adim]')
+plt.grid( visible = True, which = 'both', axis = 'both')
 plt.show()
 
 fig, bx = plt.subplots(dpi=400)
@@ -111,13 +116,22 @@ bx.plot(alfa, cl, 'o', label = 'cl-alfa')
 bx.plot(alfa, cd, 'x', label = 'cd-alfa')
 bx.plot(alfa, cs3(alfa),label = 'spline cl')
 bx.plot(alfa, cs4(alfa),label = 'spline cd')
-
+bx.set_xlim(-10.0,30.0)
+bx.set_ylim(-0.2,1.4)
+bx.set_xlabel('\u03B1 [º]')
+bx.set_ylabel('cl | cd')
+plt.grid(visible = True, which = 'both', axis = 'both')
 bx.legend(loc='upper left',ncol=1)
 plt.show()
 
 fig, cx = plt.subplots(dpi=400)
 
 cx.plot(cd, cl, 'x', label = 'polar')
+cx.set_xlim(0.0, 0.35)
+cx.set_ylim(0.0, 1.4)
+cx.set_xlabel('Cd')
+cx.set_ylabel('Cl')
+plt.grid(visible = True, which = 'both', axis = 'both')
 plt.show()
 
 #%% Calculos preliminares
@@ -458,24 +472,29 @@ for i in range(NDelBe):
     
     for i, rend in enumerate(parametros[2]):
         if rend <= 0.1:
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,0/255,255/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,0/255,255/255]])
         elif (rend > 0.1) and (rend <= 0.2):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,128/255,255/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,128/255,255/255]])
         elif (rend > 0.2) and (rend <= 0.3):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,255/255,255/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,255/255]])
         elif (rend > 0.3) and (rend <= 0.4):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,255/255,128/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,128/255]])
         elif (rend > 0.4) and (rend <= 0.5):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[0/255,255/255,0/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,0/255]])
         elif (rend > 0.5) and (rend <= 0.6):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[128/255,255/255,0/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[128/255,255/255,0/255]])
         elif (rend > 0.6) and (rend <= 0.7):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[255/255,255/255,0/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,255/255,0/255]])
         elif (rend > 0.7) and (rend <= 0.8):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[255/255,128/255,0/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,128/255,0/255]])
         elif (rend > 0.8) and (rend <= 0.9):
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[255/255,0/255,0/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,0/255,0/255]])
         else:
-            grafico.scatter(parametros[0][i],parametros[1][i],c=[[204/255,0/255,0/255]])
+            grafico.scatter(parametros[0][i], parametros[1][i], c = [[204/255,0/255,0/255]])
+    grafico.set_xlim(0.0, AJf)
+    grafico.set_ylim(0.0, max(parametros[1]))
+    grafico.set_xlabel('\u03B7')
+    grafico.set_ylabel('Cp')
+    plt.grid(visible = True, which = 'both', axis = 'both')
 plt.show()
 
