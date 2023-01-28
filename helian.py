@@ -138,7 +138,7 @@ plt.show()
 
 if AlfaPer > AlfaMax:
     AlfaPer = AlfaMax
-tol     = 0.0001
+tol     = 0.001
 R       = D/2
 Omega   = np.pi*rpm/30
 VT      = Omega*R
@@ -195,28 +195,6 @@ for i in range(NX):
     X0 += DeltaX
 #%% Titulo A
 
-print('__________'*6,'\n')
-print('Resultados del programa Helian para análisis de hélices\n')
-print('----------'*5)
-print(f'Título:\n\n{titulo:<}')
-print('----------'*5)
-print(f'Hélice:\n\n{titulo1:<}\nCant. de puntos: {NDim1:<d}')
-print(f'Factor de actividad AF: {Fact_Act:<.2f}')
-print('----------'*5)
-print(f'Perfil:\n\n{titulo2:<}\nCant. de puntos: {NDim2:<d}')
-print('----------'*5)
-print('Parámetros de la corrida:\n')
-print(f'AJ0: {AJ0:>10.2f} | AJf: {AJf:>10.2f} | NJ: {NJ:>9d} |')
-print(f'RPM: {rpm:>10.2f} | h [m]: {h:>8.2f} |')
-print(f'Nº de palas: {B:>2d} | D [m]: {D:>8.2f} |')
-print(f'X0: {X[0]:>11.2f} | DeltaX: {DeltaX:>7.2f} | NX: {NX:>9d} |')
-print(f'Beta75(i): {Beta75i:>4.1f} | Beta75(f): {Beta75f:>4.1f} |\
- NBeta: {NBeta:>6d} |')
-print(f'AlfaMin: {AlfaMin:>6.1f} | AlfaPer: {AlfaPer:>6.1f} |\
- AlfaMax: {AlfaMax:>3.1f} |')
-print(f'Impresión: {Impres:>4d} |')
-print('----------'*5)
-
 enc_01 = '##########'*6 + '\n'
 enc_02 = 'Resultados del programa Helian para análisis de hélices\n\
 Versión en Python realizada por Martín Paredes\nNoviembre 2022\n'
@@ -249,6 +227,7 @@ for i in lista_encabezado:
 
 with open('Resultados-Helian.txt', 'w', encoding = 'utf-8') as f:
     f.write('\n'.join(lista_encabezado))
+
 with open('Resultados-Helian.csv', 'w', newline = '', encoding = 'utf-8') as g:
     enc_csv = csv.writer(g)
     enc_csv.writerow(['J','Cp','Eta'])
@@ -260,8 +239,8 @@ fig, grafico = plt.subplots(dpi=500)
 
 for i in range(NDelBe):
     V0      = VEi + DelVe
-    if V0 == 0.0:
-        continue
+    #if V0 == 0.0:
+    #    continue
     DelBe_G = DelBe0
     DelBe_R = DelBe_G * np.pi/180
     Beta75  = Be75 + DelBe_R
@@ -271,15 +250,19 @@ for i in range(NDelBe):
     
     #%% Titulo B
     
-    seguir = 0
+    #seguir = 0
     # seguir = input(f'Continuarmos? Presionar "Enter"')
-    print(f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n')
+    titulo_B1 = f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n'
+    print(titulo_B1)
     with open('Resultados-helian.txt', 'a', encoding = 'utf-8') as f:
-        f.write(f'\nDelBe [º]: {DelBe_G:^4.2f} | Be75 [º]: {Be75_G:^4.2f}\n\n')
+        f.write(titulo_B1+'\n')
+    
     if Impres == 1:
-        print('|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
+        titulo_B2 = '|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n'
+        print(titulo_B2)
         with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
-            f.write('|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n')
+            f.write(titulo_B2)
+
     #%% Ciclo interno de iteraciones
     
     for j in range(NVe-1):
@@ -311,13 +294,13 @@ for i in range(NDelBe):
 
 
         for k in range(NX):
-            check = 0
+            check       = False
             VE_VT_0     = np.sqrt( X[k]**2 + lambda_g**2)
             phi[k]      = np.arctan( lambda_g/X[k] ) 
             beta_a[k]   = beta_x[k]+DelBe_R
             
             if X[k] == X[NX-1]:
-                fin         = 1
+                fin         = True
                 alfa_a_g[k] = -5.07
                 alfa_a[k]   = alfa_a_g[k]*np.pi/180
                 Cl[k]       = 0
@@ -336,7 +319,7 @@ for i in range(NDelBe):
                 if Impres == 2:
                         Re[k] = cuerda_x[k]*Ve_Vt[k]*VT/nu
                         Ve[k] = Ve_Vt[k]*VT
-                if fin == 1:
+                if fin:
                     continue
             
             Error       = 1.0
@@ -353,12 +336,13 @@ for i in range(NDelBe):
                 if ( alfa_a_g[k] > AlfaMax ) or ( alfa_a_g[k] < AlfaMin ):
                     n       = Omega/(2*np.pi)
                     AJ      = V0/(n*D)
-                    print(f' {AJ:^12.2f}-----','   Alguna estación se encuentra fuera de la curva cl-alfa   ','-----')
+                    mensaje = f' {AJ:^12.2f}-----   Alguna estación se encuentra fuera de la curva cl-alfa   -----'
+                    print(mensaje)
                     with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
-                        f.write(f' {AJ:^12.2f}  -----    Alguna estación se encuentra fuera de la curva cl-alfa     -----')
+                        f.write(mensaje)
                         f.write('\n')
                     
-                    check = 1
+                    check = True
                     break
                 
                 Cl[k] = cs3(alfa_a_g[k])
@@ -398,14 +382,14 @@ for i in range(NDelBe):
                 if iteracion == 99:
                     print(f'Alfa_a no converge para x ={X[k]:>.2f}, V ={V0:>.2f}, Beta75 = {Be75_G:>.2f}')
                 iteracion += 1
-            if check == 1:
+            if check:
                 break
             if ( alfa_a_g[k] > AlfaPer) or ( alfa_a_g[k] < alfa[0] ):
                 pa = '('
                 pb = ')'
             #%% Resultados
             
-        if check == 1:
+        if check:
             V0 += DelVe
             continue
         
@@ -493,7 +477,8 @@ for i in range(NDelBe):
             grafico.scatter(parametros[0][i], parametros[1][i], c = [[204/255,0/255,0/255]])
     grafico.set_xlim(0.0, AJf)
     grafico.set_ylim(0.0, max(parametros[1]))
-    grafico.set_xlabel('\u03B7')
+    grafico.set_xlabel('J')
+    #eta '\u03B7'
     grafico.set_ylabel('Cp')
     plt.grid(visible = True, which = 'both', axis = 'both')
 plt.show()
