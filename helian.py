@@ -138,6 +138,7 @@ plt.show()
 
 if AlfaPer > AlfaMax:
     AlfaPer = AlfaMax
+
 tol     = 0.001
 R       = D/2
 Omega   = np.pi*rpm/30
@@ -185,9 +186,12 @@ beta_x      = []
 sigma_x     = []
 for i in range(NX):
     X.append(X0)
-    if X0 >= 1.0:
+    if X0 > 1.0:
         X[i] = 1.0
-        NX = i
+        #NX = i
+        cuerda_x.append(cs1(X0)*R)
+        beta_x.append(cs2(X0))
+        sigma_x.append(B*cuerda_x[i]/(np.pi*R))
         break
     cuerda_x.append(cs1(X0)*R)
     beta_x.append(cs2(X0))
@@ -197,7 +201,7 @@ for i in range(NX):
 
 enc_01 = '##########'*6 + '\n'
 enc_02 = 'Resultados del programa Helian para análisis de hélices\n\
-Versión en Python realizada por Martín Paredes\nNoviembre 2022\n'
+Versión en Python realizada por Martín Paredes\nEnero 2023\n'
 enc_03 = '##########'*6 + '\n'
 enc_04 = '----------'*6 + '\n' + f'Título:\n\n{titulo:<}'
 enc_05 = '----------'*6
@@ -237,6 +241,8 @@ with open('Resultados-Helian.csv', 'w', newline = '', encoding = 'utf-8') as g:
 fig, grafico = plt.subplots(dpi=500)
 # levels = np.linspace(0.0,1.0,10)
 
+parametros = [[],[],[]]
+
 for i in range(NDelBe):
     V0      = VEi + DelVe
     #if V0 == 0.0:
@@ -246,7 +252,7 @@ for i in range(NDelBe):
     Beta75  = Be75 + DelBe_R
     Be75_G  = Beta75 * 180/np.pi
     
-    parametros = [[],[],[]]
+    
     
     #%% Titulo B
     
@@ -299,7 +305,7 @@ for i in range(NDelBe):
             phi[k]      = np.arctan( lambda_g/X[k] ) 
             beta_a[k]   = beta_x[k]+DelBe_R
             
-            if X[k] == X[NX-1]:
+            if X[k] == X[-1]:
                 fin         = True
                 alfa_a_g[k] = -5.07
                 alfa_a[k]   = alfa_a_g[k]*np.pi/180
@@ -397,6 +403,21 @@ for i in range(NDelBe):
         B1 = X[NX-1]
         
         cs5 = CubicSpline(X, Cl_x2, bc_type = 'natural')
+        
+        """
+        fig, dx = plt.subplots(dpi=400)
+
+        dx.plot(X, Cl_x2, 'o', label = 'Cl x^2')
+
+        dx.set_xlim(0.0,1.0)
+        dx.set_ylim(0.0,1.)
+        dx.legend(loc='upper right',ncol=1)
+        dx.set_xlabel('X [-]')
+        dx.set_ylabel('Cl.X^2 [-]')
+        plt.grid( visible = True, which = 'both', axis = 'both')
+        plt.show()
+        """
+        
         Integral_cs5 = integrate.simpson(Cl_x2, X, even = 'first')
         CL_I = 3*Integral_cs5
         
@@ -406,8 +427,8 @@ for i in range(NDelBe):
         cs7 = CubicSpline(X, dkp, bc_type = 'natural')
         Integral_dkp = integrate.simpson(dkp, X, even = 'first')
         
-        T       = 1.5708*rho*(R**2)*(VT**2)*Integral_dkt
-        P       = 1.5708*rho*(R**2)*(VT**3)*Integral_dkp/76.05
+        T       = np.pi/2*rho*(R**2)*(VT**2)*Integral_dkt
+        P       = np.pi/2*rho*(R**2)*(VT**3)*Integral_dkp/76.05
         ETA     = T*V0/P/76.05
         n       = Omega/(2*np.pi)
         AJ      = V0/(n*D)
@@ -418,7 +439,7 @@ for i in range(NDelBe):
         V0 += DelVe
         
         if ETA_1 == 0.0:
-            PID = T**1.5/(R*np.sqrt(6.2832*rho))
+            PID = T**1.5/(R*np.sqrt(2*np.pi*rho))
             ETA_1 = PID/(P*76.05)
         
         if Impres == 1:
