@@ -20,12 +20,12 @@ Estaciones,Cuerdas adimensionales,Ángulos de alabeo
 Parámetros de corrida
 Velocidad de ascenso [m/s]:,0.0
 Velocidad angular [1/s]:,25
-Radio del disco [m]:,4.91
-Valor inicial de 'x':,0.224
+Radio del disco [m]:,4.0
+Valor inicial de 'x':,0.25
 Número de palas:,4
-Numero de estaciones segun 'x':,18
+Numero de estaciones segun 'x':,61
 Densidad [kg/m3]:,1.225
 Velocidad del sonido [m/s]:,340
-Ángulo de paso colectivo inicial [º]:,7
+Ángulo de paso colectivo inicial [º]:,10
 Ángulo de paso colectivo final [º]:,12
 Paso de ángulo theta [º]:,1

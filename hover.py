@@ -116,12 +116,18 @@ ax.plot(alfa, CLp7,'*', label = 'p7')
 ax.plot(alfa, CLp8,'+', label = 'p8')
 ax.plot(alfa, CLp9,'d', label = 'p9')
 ax.legend(loc='upper left',ncol=1)
+ax.set_title('Curvas de sustentación')
+ax.set_xlabel('\u03B1 [-]')
+ax.set_ylabel('cl [-]')
+plt.grid( visible = True, which = 'both', axis = 'both')
+plt.savefig('curvas.png', dpi=400, format='png', orientation='landscape')
 plt.show()
+plt.close()
 
 
-spline_cuerda = CubicSpline(xR, csR, bc_type = 'natural')
-spline_beta = CubicSpline(xR, beta, bc_type = 'natural')
-spline_alfamay = CubicSpline(XMach, AlfMay, bc_type = 'natural')
+spline_cuerda   = CubicSpline(xR, csR, bc_type = 'natural')
+spline_beta     = CubicSpline(xR, beta, bc_type = 'natural')
+spline_alfamay  = CubicSpline(XMach, AlfMay, bc_type = 'natural')
 
 alfa = alfa*np.pi/180
 spline_clp3 = CubicSpline(alfa, CLp3, bc_type = 'natural')
@@ -355,7 +361,7 @@ while theta <= theta_f:
         kp2     = Cl[i]*np.sin(arg[i])+Cd[i]*np.cos(arg[i])
         dkp[i]  = kp1*kp2
         X0      = X[i] + Delta_X
-        result1 = f' {i+1:^9d} {X[i]:^10.3f} {ZMach:^10.3f} {AlfaMax:^10.3f} ' 
+        result1 = f' {i+1:^9d} {X[i]:^10.4f} {ZMach:^10.3f} {AlfaMax:^10.3f} ' 
         print(result1)
         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
             f.write(result1 + '\n')
@@ -363,7 +369,7 @@ while theta <= theta_f:
     
     #%% Fin: Ciclo grande
     
-    result2 = f' {NX:^9d} {X[NX-1]:^10.3f} {ZMach:^10.3f} {AlfaMax:^10.3f} '
+    result2 = f' {NX:^9d} {X[NX-1]:^10.4f} {ZMach:^10.3f} {AlfaMax:^10.3f} '
     print(result2)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
         f.write(result2)
@@ -380,9 +386,6 @@ while theta <= theta_f:
     
     
     #Cálculos finales
-    
-    #A1 = X[0]
-    #B1 = X[NX]
     
     tkt = integrate.simpson(dkt, X, even = 'first')
     pkp = integrate.simpson(dkp, X, even = 'first')
@@ -458,6 +461,35 @@ while theta <= theta_f:
             print(cadena_final)
             with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
                 f.write(cadena_final)
+                f.close()
+                
+    fig, bx = plt.subplots(dpi=400)
+    bx.plot(X, alfa_a, 'o', label='alfa')
+    bx.plot(X, Cl, 'x', label='Cl')
+    bx.plot(X, Cd, '*', label='Cd')
+    bx.legend(loc='best',ncol=1)
+    bx.set_title('Curvas de coef. de sust. y resist.')
+    bx.set_xlabel('x/R [-]')
+    bx.set_ylabel('Cl/Cd [-]')
+    plt.grid(visible = True, which = 'both', axis = 'both')
+    bx.set_xlim(0.0,1.0)
+    plt.savefig('curvas2.png', dpi=400, format='png', orientation='landscape')
+    plt.show()
+    plt.close()
+    
+    fig, cx = plt.subplots(dpi=400)
+    cx.plot(X, wa_VT, 'o', label='Vind')
+    cx.legend(loc='upper left',ncol=1)
+    cx.set_title('Velocidad inducida')
+    cx.set_xlabel('x/R [-]')
+    cx.set_ylabel('Vind [m/s]')
+    plt.grid(visible = True, which = 'both', axis = 'both')
+    cx.set_xlim(0.0,1.0)
+
+    plt.savefig('curvas3.png', dpi=400, format='png', orientation='landscape')
+    plt.show()
+    
+    plt.close()
     
     theta = theta*57.3 + delta_theta
     
