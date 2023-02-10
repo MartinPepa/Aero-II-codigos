@@ -20,14 +20,14 @@ def lectura_csv(archivo_csv):
     with open(archivo_csv, 'rt', encoding = 'utf8') as f:
         rows = csv.reader(f)
         next(rows)
-        encabezado = next(rows)
-        enc_1 = encabezado[0]
-        enc_2 = encabezado[1]
-        enc_3 = encabezado[2]
-        xR = []
-        csR = []
-        beta = []
-        Dim = 0
+        encabezado  = next(rows)
+        enc_1   = encabezado[0]
+        enc_2   = encabezado[1]
+        enc_3   = encabezado[2]
+        xR      = []
+        csR     = []
+        beta    = []
+        Dim     = 0
         for i, row in enumerate(rows):
             try: #type(float(row[0])) is float:
                 xR.append(float(row[0]))
@@ -36,8 +36,8 @@ def lectura_csv(archivo_csv):
                 Dim += 1
             except:        
                 #row = next(rows)
-                titulo_1 = row[0]
-                parametros = []
+                titulo_1    = row[0]
+                parametros  = []
                 for i, row in enumerate(rows):
                     parametros.append(row[1])
                 Vasc        = float(parametros[0])
@@ -446,13 +446,13 @@ while theta <= theta_f:
         print(merito2 + sharp1)
         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
             f.write(merito2 + sharp1 + '\n')
-    
-    fila2 = '\n|    Alfa   |     CL    |     CD    |    Vind   |' 
-    print(fila2)
+    fila2_1 = '\nResultados en las estaciones\n'
+    fila2_2 = '\n|     N     | Alfa [rad]|     CL    |     CD    |    Vind   |' 
+    print(fila2_1 + fila2_2)
     with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
-        f.write(fila2)
+        f.write(fila2_1+fila2_2)
     for j in range(NX):
-        result_fin = f'{ alfa_a[j]:>10.4f}  {Cl[j]:>10.4f}  {Cd[j]:>10.4f}  {wa_VT[j]:>10.4f} '
+        result_fin = f' {j+1:^11d}  {alfa_a[j]:^11.4f} {Cl[j]:^11.4f} {Cd[j]:^11.4f} {wa_VT[j]:^11.4f} '
         print(result_fin)
         with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
             f.write('\n' + result_fin)

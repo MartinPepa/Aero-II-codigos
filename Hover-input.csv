@@ -23,9 +23,9 @@ Velocidad angular [1/s]:,25
 Radio del disco [m]:,4.0
 Valor inicial de 'x':,0.25
 Número de palas:,4
-Numero de estaciones segun 'x':,61
+Numero de estaciones segun 'x':,16
 Densidad [kg/m3]:,1.225
 Velocidad del sonido [m/s]:,340
 Ángulo de paso colectivo inicial [º]:,10
-Ángulo de paso colectivo final [º]:,12
+Ángulo de paso colectivo final [º]:,11
 Paso de ángulo theta [º]:,1
