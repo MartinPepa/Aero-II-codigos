@@ -12,7 +12,9 @@ from scipy.interpolate import BSpline
 import matplotlib.pyplot as plt
 import csv
 from scipy import integrate
-plt.close(fig = 'all')
+from datetime import datetime
+import os
+#plt.close(fig = 'all')
 
 #%% Funciones
 
@@ -87,6 +89,12 @@ titulo1, NDim1, xD, csR, beta = lectura_helice('helice.csv')
 
 titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
 
+hoy = datetime.isoformat(datetime.today(), timespec="seconds")
+hoy = hoy.replace(':', '-')
+
+directorio_helian = 'Helian_' + hoy
+os.mkdir(directorio_helian)
+#check = 1
 #%% Splines y gráficos
 
 cs1 = CubicSpline(xD,  csR, bc_type = 'natural')
@@ -108,7 +116,9 @@ ax.legend(loc='upper right',ncol=1)
 ax.set_xlabel('r/R [adim]')
 ax.set_ylabel('beta [rad] | c/R [adim]')
 plt.grid( visible = True, which = 'both', axis = 'both')
-plt.show()
+nombre = directorio_helian + '/Helian_beta-csr(r-R)_' + hoy + '.png'
+plt.savefig(nombre, dpi=400, format='png', orientation='landscape')
+#plt.show()
 
 fig, bx = plt.subplots(dpi=400)
 
@@ -122,7 +132,9 @@ bx.set_xlabel('\u03B1 [º]')
 bx.set_ylabel('cl | cd')
 plt.grid(visible = True, which = 'both', axis = 'both')
 bx.legend(loc='upper left',ncol=1)
-plt.show()
+nombre = directorio_helian + '/Helian_cl-cd(alpha)_' + hoy + '.png'
+plt.savefig(nombre, dpi=400, format='png', orientation='landscape')
+#plt.show()
 
 fig, cx = plt.subplots(dpi=400)
 
@@ -132,7 +144,9 @@ cx.set_ylim(0.0, 1.4)
 cx.set_xlabel('Cd')
 cx.set_ylabel('Cl')
 plt.grid(visible = True, which = 'both', axis = 'both')
-plt.show()
+nombre = directorio_helian + '/Helian_cl(cd)_' + hoy + '.png'
+plt.savefig(nombre, dpi=400, format='png', orientation='landscape')
+#plt.show()
 
 #%% Calculos preliminares
 
@@ -201,7 +215,8 @@ for i in range(NX):
 
 enc_01 = '##########'*6 + '\n'
 enc_02 = 'Resultados del programa Helian para análisis de hélices\n\
-Versión en Python realizada por Martín Paredes\nEnero 2023\n'
+Código adaptado de Fortran77 a Python realizado por Martín Paredes\nJunio 2023\n\
+Fecha y hora de corrida: ' + hoy + '\n'
 enc_03 = '##########'*6 + '\n'
 enc_04 = '----------'*6 + '\n' + f'Título:\n\n{titulo:<}'
 enc_05 = '----------'*6
@@ -226,13 +241,16 @@ enc_19 = '----------'*6 + '\n'
 lista_encabezado = [enc_01, enc_02, enc_03, enc_04, enc_05, enc_06, enc_07,
                     enc_08, enc_09, enc_10, enc_11, enc_12, enc_13, enc_14,
                     enc_15, enc_16, enc_17, enc_18, enc_19]
+
 for i in lista_encabezado:
     print(i)
 
-with open('Resultados-Helian.txt', 'w', encoding = 'utf-8') as f:
+nombre_txt = directorio_helian + '/Resultados-Helian_' + hoy + '.txt'
+with open(nombre_txt, 'w', encoding = 'utf-8') as f:
     f.write('\n'.join(lista_encabezado))
 
-with open('Resultados-Helian.csv', 'w', newline = '', encoding = 'utf-8') as g:
+nombre_csv = directorio_helian + '/Resultados-Helian_' + hoy + '.csv'
+with open(nombre_csv, 'w', newline = '', encoding = 'utf-8') as g:
     enc_csv = csv.writer(g)
     enc_csv.writerow(['J','Cp','Eta'])
 
@@ -260,13 +278,13 @@ for i in range(NDelBe):
     # seguir = input(f'Continuarmos? Presionar "Enter"')
     titulo_B1 = f'\nDelBe [º]: {DelBe_G:^4.1f} | Be75 [º]: {Be75_G:^4.1f}\n'
     print(titulo_B1)
-    with open('Resultados-helian.txt', 'a', encoding = 'utf-8') as f:
+    with open(nombre_txt, 'a', encoding = 'utf-8') as f:
         f.write(titulo_B1+'\n')
     
     if Impres == 1:
         titulo_B2 = '|      J     |     CT     |     CP     | Eficiencia |   Alfa(1)  |  Alfa(N-1) |    Cli     |\n'
         print(titulo_B2)
-        with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
+        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
             f.write(titulo_B2)
 
     #%% Ciclo interno de iteraciones
@@ -344,7 +362,7 @@ for i in range(NDelBe):
                     AJ      = V0/(n*D)
                     mensaje = f' {AJ:^12.2f}-----   Alguna estación se encuentra fuera de la curva cl-alfa   -----'
                     print(mensaje)
-                    with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
+                    with open(nombre_txt, 'a', encoding = 'utf-8') as f:
                         f.write(mensaje)
                         f.write('\n')
                     
@@ -445,14 +463,14 @@ for i in range(NDelBe):
         if Impres == 1:
             resultados = [pa,f'{AJ:^11.2f} {CT:^12.4f} {CP:^12.4f} {ETA_1:^12.4f} {alfa_a_g[0]:^12.2f} {alfa_a_g[NX-2]:^12.2f} {CL_I:^11.4f}',pb]
             print(' '.join(resultados))
-            with open('Resultados-Helian.txt', 'a', encoding = 'utf-8') as f:
+            with open(nombre_txt, 'a', encoding = 'utf-8') as f:
                 f.write(' '.join(resultados))
                 f.write('\n')
             if pa == ' ':
                 parametros[0].append(AJ)
                 parametros[1].append(CP)
                 parametros[2].append(ETA_1)
-                with open('Resultados-Helian.csv', 'a', newline = '', encoding = 'utf-8') as g:
+                with open(nombre_csv, 'a', newline = '', encoding = 'utf-8') as g:
                     fila = csv.writer(g)
                     fila.writerow([AJ, CP, ETA_1])
             if ETA_1 < 0.:
@@ -475,32 +493,40 @@ for i in range(NDelBe):
             # break
     DelBe0 += DelBei
     
-    for i, rend in enumerate(parametros[2]):
-        if rend <= 0.1:
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,0/255,255/255]])
-        elif (rend > 0.1) and (rend <= 0.2):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,128/255,255/255]])
-        elif (rend > 0.2) and (rend <= 0.3):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,255/255]])
-        elif (rend > 0.3) and (rend <= 0.4):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,128/255]])
-        elif (rend > 0.4) and (rend <= 0.5):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,0/255]])
-        elif (rend > 0.5) and (rend <= 0.6):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[128/255,255/255,0/255]])
-        elif (rend > 0.6) and (rend <= 0.7):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,255/255,0/255]])
-        elif (rend > 0.7) and (rend <= 0.8):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,128/255,0/255]])
-        elif (rend > 0.8) and (rend <= 0.9):
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,0/255,0/255]])
-        else:
-            grafico.scatter(parametros[0][i], parametros[1][i], c = [[204/255,0/255,0/255]])
-    grafico.set_xlim(0.0, AJf)
-    grafico.set_ylim(0.0, max(parametros[1]))
-    grafico.set_xlabel('J')
-    #eta '\u03B7'
-    grafico.set_ylabel('Cp')
-    plt.grid(visible = True, which = 'both', axis = 'both')
-plt.show()
+#     #%% Gráfico
+    
+#     for i, rend in enumerate(parametros[2]):
+#         if rend <= 0.1:
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,0/255,255/255]])
+#         elif (rend > 0.1) and (rend <= 0.2):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,128/255,255/255]])
+#         elif (rend > 0.2) and (rend <= 0.3):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,255/255]])
+#         elif (rend > 0.3) and (rend <= 0.4):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,128/255]])
+#         elif (rend > 0.4) and (rend <= 0.5):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[0/255,255/255,0/255]])
+#         elif (rend > 0.5) and (rend <= 0.6):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[128/255,255/255,0/255]])
+#         elif (rend > 0.6) and (rend <= 0.7):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,255/255,0/255]])
+#         elif (rend > 0.7) and (rend <= 0.8):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,128/255,0/255]])
+#         elif (rend > 0.8) and (rend <= 0.9):
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[255/255,0/255,0/255]])
+#         else:
+#             grafico.scatter(parametros[0][i], parametros[1][i], c = [[204/255,0/255,0/255]])
+#     grafico.set_xlim(0.0, AJf)
+#     grafico.set_ylim(0.0, max(parametros[1]))
+#     grafico.set_xlabel('J')
+#     #eta '\u03B7'
+#     grafico.set_ylabel('Cp')
+#     plt.grid(visible = True, which = 'both', axis = 'both')
+# nombre = 'Helian_gráfico-de-hélice_' + hoy + '.png'
+# plt.savefig(nombre, dpi=400, format='png', orientation='landscape')    
+# #plt.show()
 
+
+
+
+#%%

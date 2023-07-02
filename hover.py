@@ -13,6 +13,8 @@ from scipy.interpolate import BSpline
 import matplotlib.pyplot as plt
 import csv
 from scipy import integrate
+from datetime import datetime
+import os
 
 #%% Leida de datos
 
@@ -59,6 +61,11 @@ def lectura_csv(archivo_csv):
 enc_1, enc_2, enc_3, xR, csR, beta, Dim, titulo_1,Vasc, Omega,\
     R, x0, B, NX, rho, Va, theta_0, theta_f, delta_theta = lectura_csv('Hover-input.csv')
 
+hoy = datetime.isoformat(datetime.today(), timespec="seconds")
+hoy = hoy.replace(':', '-')
+
+directorio_hover = 'Hover_' + hoy
+os.mkdir(directorio_hover)
 
 #%% Splines y gráficos
 
@@ -120,9 +127,10 @@ ax.set_title('Curvas de sustentación')
 ax.set_xlabel('\u03B1 [-]')
 ax.set_ylabel('cl [-]')
 plt.grid( visible = True, which = 'both', axis = 'both')
-plt.savefig('curvas.png', dpi=400, format='png', orientation='landscape')
-plt.show()
-plt.close()
+nombre = directorio_hover + '/Hover_cl-alpha(M)_' + hoy + '.png'
+plt.savefig(nombre, dpi=400, format='png', orientation='landscape')
+# plt.show()
+# plt.close()
 
 
 spline_cuerda   = CubicSpline(xR, csR, bc_type = 'natural')
@@ -156,10 +164,12 @@ lambda_g = Vasc/VT
 
 titulo_txt = '\n\nResultados de condicion de Hovering\n\
 Código adaptado de Fortran77 a Python realizado por Martín Paredes\n\
-Práctica de Docencia de Pregrado 2022-2023\n\n'
+Práctica de Docencia de Pregrado 2022-2023\n\
+Fecha y hora de corrida: ' + hoy + '\n\n'
 print(titulo_txt)
 
-with open('Resultados-Hover.txt', 'w', encoding = 'utf-8') as f:
+nombre_txt = directorio_hover + '/Resultados-Hover.txt'
+with open(nombre_txt, 'w', encoding = 'utf-8') as f:
     f.write('##########'*8 + titulo_txt + '##########'*8)
 # with open('Resultados-Hover.csv', 'w', newline = '', encoding = 'utf-8') as g:
 #     enc_csv = csv.writer(g)
@@ -172,7 +182,7 @@ while theta <= theta_f:
     angulo = f'\n\nResultados para el ángulo de paso colectivo: {theta:>5.2f} [º]'
     fila1 = '\n\n|    N    |   X(N)   |  ZMach   |  AlfMax  |\n' 
     print(angulo + fila1)
-    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+    with open(nombre_txt, 'a', encoding = 'utf-8') as f:
         f.write(angulo + fila1)
     
     theta       = theta/57.3
@@ -274,7 +284,7 @@ while theta <= theta_f:
                                              + 4.0*wt_VT[i]*(X[i]-wt_VT[i])))
                         warning = 'Warning: Solución compleja.'
                         print(warning)
-                        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+                        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
                             f.write(warning)
                 elif (X[i]-1.0) == 0:
                      alfa_a[i] = 0.0
@@ -293,7 +303,7 @@ while theta <= theta_f:
                                              + 4.0*wt_VT[i]*(X[i]-wt_VT[i])))
                         warning = 'Warning: Solución compleja.'
                         print(warning)
-                        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+                        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
                             f.write(warning)
                 elif (X[i]-X[-1]) == 0.0:
                      alfa_a[i] = 0.0
@@ -315,7 +325,7 @@ while theta <= theta_f:
             if k == 60:
                 max_iter = f'ALFAA(I) >= ALFMAX EN I= {i+1:>3d}. También número de iteraciones mayor a 60'
                 print(max_iter)
-                with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+                with open(nombre_txt, 'a', encoding = 'utf-8') as f:
                     f.write(max_iter)
             alfa_i_0 = (alfii + alfa_i[i])/2.0
             
@@ -363,7 +373,7 @@ while theta <= theta_f:
         X0      = X[i] + Delta_X
         result1 = f' {i+1:^9d} {X[i]:^10.4f} {ZMach:^10.3f} {AlfaMax:^10.3f} ' 
         print(result1)
-        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
             f.write(result1 + '\n')
         #result1 = ''
     
@@ -371,7 +381,7 @@ while theta <= theta_f:
     
     result2 = f' {NX:^9d} {X[NX-1]:^10.4f} {ZMach:^10.3f} {AlfaMax:^10.3f} '
     print(result2)
-    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+    with open(nombre_txt, 'a', encoding = 'utf-8') as f:
         f.write(result2)
     Beta1       = spline_beta(X[-1])
     beta_a[-1]  = Beta1 + theta
@@ -403,7 +413,7 @@ while theta <= theta_f:
     Be75 = spline_beta(0.75)
     Beta75 = Be75 + theta
     
-    #Impresión de resultados
+    #%%Impresión de resultados
     
     resultados = []
     
@@ -421,7 +431,7 @@ while theta <= theta_f:
     for linea in resultados:
         print(linea)
     
-    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+    with open(nombre_txt, 'a', encoding = 'utf-8') as f:
         for linea in resultados:
             f.write(linea + '\n')
 
@@ -429,8 +439,7 @@ while theta <= theta_f:
         eta0    = '\nEficiencia negativa.\n\n'
         sharp1  = '----------'*6
         print(eta0 + sharp1)
-        #print(sharp1)
-        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
             f.write(eta0 + sharp1 + '\n')
     elif ETA == 0:
         PID     = (T**1.5)/(np.sqrt(2*np.pi*rho*R**2))
@@ -438,28 +447,29 @@ while theta <= theta_f:
         merito  = f'\n| M [-] = {Mer:>5.4f} |\n\n'
         sharp1  = '----------'*6
         print(merito + sharp1)
-        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
             f.write(merito + sharp1 + '\n')
     else:
         merito2 = '\nNo hay Factor de Mérito si asciende.\n\n'
         sharp1  = '----------'*6
         print(merito2 + sharp1)
-        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
             f.write(merito2 + sharp1 + '\n')
     fila2_1 = '\nResultados en las estaciones\n'
     fila2_2 = '\n|     N     | Alfa [rad]|     CL    |     CD    |    Vind   |' 
     print(fila2_1 + fila2_2)
-    with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+    
+    with open(nombre_txt, 'a', encoding = 'utf-8') as f:
         f.write(fila2_1+fila2_2)
     for j in range(NX):
         result_fin = f' {j+1:^11d}  {alfa_a[j]:^11.4f} {Cl[j]:^11.4f} {Cd[j]:^11.4f} {wa_VT[j]:^11.4f} '
         print(result_fin)
-        with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+        with open(nombre_txt, 'a', encoding = 'utf-8') as f:
             f.write('\n' + result_fin)
         if j == NX-1:
             cadena_final ='\n'*2 + '##########'*8
             print(cadena_final)
-            with open('Resultados-Hover.txt', 'a', encoding = 'utf-8') as f:
+            with open(nombre_txt, 'a', encoding = 'utf-8') as f:
                 f.write(cadena_final)
                 f.close()
                 
@@ -473,9 +483,10 @@ while theta <= theta_f:
     bx.set_ylabel('Cl/Cd [-]')
     plt.grid(visible = True, which = 'both', axis = 'both')
     bx.set_xlim(0.0,1.0)
-    plt.savefig('curvas2.png', dpi=400, format='png', orientation='landscape')
-    plt.show()
-    plt.close()
+    nombre = directorio_hover + '/Hover_Cl-Cd-alfa(x_R)_' + hoy + '.png'
+    plt.savefig(nombre, dpi=400, format='png', orientation='landscape')
+    # plt.show()
+    # plt.close()
     
     fig, cx = plt.subplots(dpi=400)
     cx.plot(X, wa_VT, 'o', label='Vind')
@@ -485,11 +496,12 @@ while theta <= theta_f:
     cx.set_ylabel('Vind [m/s]')
     plt.grid(visible = True, which = 'both', axis = 'both')
     cx.set_xlim(0.0,1.0)
-
-    plt.savefig('curvas3.png', dpi=400, format='png', orientation='landscape')
-    plt.show()
     
-    plt.close()
+    nombre = directorio_hover + '/Hover_Vind(x_R)_' + hoy + '.png'
+    plt.savefig(nombre, dpi=400, format='png', orientation='landscape')
+    # plt.show()
+    
+    # plt.close()
     
     theta = theta*57.3 + delta_theta
     
