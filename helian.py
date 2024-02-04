@@ -83,16 +83,16 @@ def lectura_simulacion(parametros):
 
 titulo, AJ0, AJf, NJ, rpm, h, B, D, X0, DeltaX,\
     NX, Beta75i, Beta75f, NBeta, AlfaMin, AlfaPer,\
-    AlfaMax, Impres = lectura_simulacion('parametros.csv')
+    AlfaMax, Impres = lectura_simulacion('input/parametros.csv')
     
-titulo1, NDim1, xD, csR, beta = lectura_helice('helice.csv')
+titulo1, NDim1, xD, csR, beta = lectura_helice('input/helice.csv')
 
-titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('polar.csv')
+titulo2, NDim2, alfa, cl, cd = lectura_curva_polar('input/polar.csv')
 
 hoy = datetime.isoformat(datetime.today(), timespec="seconds")
 hoy = hoy.replace(':', '-')
 
-directorio_helian = 'Helian_' + hoy
+directorio_helian = 'outputs/Helian_' + hoy
 os.mkdir(directorio_helian)
 #check = 1
 #%% Splines y gráficos
@@ -522,9 +522,9 @@ for i in range(NDelBe):
 #     #eta '\u03B7'
 #     grafico.set_ylabel('Cp')
 #     plt.grid(visible = True, which = 'both', axis = 'both')
-# nombre = 'Helian_gráfico-de-hélice_' + hoy + '.png'
+# nombre = 'outputs/Helian_grafico-de-helice_' + hoy + '.png'
 # plt.savefig(nombre, dpi=400, format='png', orientation='landscape')    
-# #plt.show()
+# plt.show()
 
 
 
