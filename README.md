@@ -21,3 +21,6 @@ La herramienta Helian tiene como objetivo el análisis de una hélice para la ge
 ## Hover
 
 La herramienta Hover es un software que se originó de una adaptación de Helian para el análisis de un rotor de helicóptero en un estado de vuelo suspendido. (condición de Hover).
+
+- **Flujo**: Flujo global.
+  ![Hover - Flujo global](Images/Hover-Fiagrama-de-Flujo.png)
