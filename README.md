@@ -11,7 +11,7 @@ En el año 2021 el autor de este repositorio comenzó con la "traducción" a Pyt
 La herramienta Helian tiene como objetivo el análisis de una hélice para la generación del Gráfico de la Hélice.
 
 - **Flujo Global**: Flujo de cálculo global.
-  ![Helian - Flujo global](Images/Helian-Diagrama_de_flujo_global.png)
+  ![Helian - Flujo global](Images/Helian-diagrama_de_flujo.png)
 - **Primer ciclo**: Recorrido de ángulo de paso.
   ![Helian - 1º Ciclo](Images/Helian-Diagrama_de_flujo_1Ciclo.png)
 - **Segundo ciclo**: Relación de avance J.
@@ -22,5 +22,5 @@ La herramienta Helian tiene como objetivo el análisis de una hélice para la ge
 
 La herramienta Hover es un software que se originó de una adaptación de Helian para el análisis de un rotor de helicóptero en un estado de vuelo suspendido. (condición de Hover).
 
-- **Flujo**: Flujo global.
+- **Flujo Global**: Flujo de cálculo global.
   ![Hover - Flujo global](Images/Hover-diagrama_de_flujo.png)
