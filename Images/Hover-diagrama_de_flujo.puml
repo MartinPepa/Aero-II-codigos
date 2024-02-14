@@ -11,36 +11,40 @@ floating note left: Hover-input.csv
 
 start
 partition 1º #LightSkyBlue {
-repeat
-    :\t\t     **1º Ciclo:**\nRecorrido de ángulos colectivos;
-    if (θ < Nθ) then (Si)
-        partition 2º #LightBlue {
-        repeat
-            :\t\t**2º Ciclo:**\nRecorrido de estaciones;
-            if (xi < Nx) then (Si)
-                partition 3º #LightGrey {
-                :  **3º Ciclo:**\nIteraciones;
+    repeat
+        :\t\t     **1º Ciclo:**\nRecorrido de ángulos colectivos;
+        if (θ < Nθ) then (Si)
+            partition 2º #LightBlue {
                 repeat
-                    :Iteración;
-                repeat while (error < Tol) is (Si) not (No)
-                :    Impresión de
-                resultados en **.txt**;
-                }
-            else (No)
-                :Fin de **2º Ciclo**;
-                :    Impresión de
-                resultados en **.txt**;
-            endif
-            backward:Próxima estación xi;
-        repeat while (Fin de **2º Ciclo**) is (No) not (Si)
-        }
-    else (No)
-        :Fin de **1º Ciclo**;
-        :   Impresión de\nresultados en **.txt**;
-    endif
+                    :\t\t**2º Ciclo:**\nRecorrido de estaciones;
+                    if (xi < Nx) then (Si)
+                        partition 3º #LightGrey {
+                            :  **3º Ciclo:**\nIteraciones;
+                            repeat
+                                :Iteración;
+                                if (Solución compleja) then (Si)
+                                    :Flag: "Solución compleja";
+                                break
+                                else (No)
+                                endif
+                            repeat while (error < Tol) is (Si) not (No)
+                            :Impresión en **.txt**;
+                        }
+                    else (No)
+                        :Fin de **2º Ciclo**;
+                        :Impresión en **.txt**;
+                    endif
+                backward:Próxima estación xi;
+                repeat while (Fin de **2º Ciclo**) is (No) not (Si)
+            }
+        else (No)
+            :Fin de **1º Ciclo**;
+            :Impresión en **.txt**;
+        endif
     backward :Próximo ángulo θ;
-repeat while (Fin de **1º Ciclo**) is (No) not (Si)
+    repeat while (Fin de **1º Ciclo**) is (No) not (Si)
 }
+:Exportación en **.txt**;
 end
 
 @endump

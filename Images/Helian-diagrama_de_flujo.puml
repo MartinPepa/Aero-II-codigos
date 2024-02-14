@@ -1,0 +1,53 @@
+@startuml Helian-diagrama_de_flujo
+
+<style>
+activityDiagram {
+    FontName arial
+}
+</style>
+
+:Lectura de datos]
+floating note left: - helice.csv\n- parametros.csv\n- polar.csv
+
+start
+partition 1º #LightSkyBlue {
+repeat
+:   **1º Ciclo**:\nβ 75% de R;
+    if (β < Nβ) then (Si)
+        partition 2º #LightBlue {
+        repeat
+            :\t    **2º Ciclo**:\nRelacion de avance J;
+            if (j < NJ) then (Si)
+                partition 3º #LightGrey {
+                    :\t     **3º Ciclo**:\nEstaciones de cálculo;
+                    if (\t  Condición:\nestación fuera de curva) then (Si)
+                        :\t\t  Flag:\n"Estación fuera de curva";
+                    else (No)
+                        repeat
+                            :Iteración;
+                            if (iteración max) then (No)
+                            else (Si)
+                            break
+                            endif
+                        repeat while (error < Tol) is (Si) not (No)
+                    endif
+                    :Impresión en **.txt** y **.csv**;
+                }
+            else (No)
+                :Fin de **2º Ciclo**;
+                :Impresión en **.txt** y **.csv**;
+            endif
+        backward :Proximo\n  valor j;
+        repeat while (Fin de **2º Ciclo**) is (No) not (Si)
+        }
+    else (No)
+        :Fin de **1º Ciclo**;
+        :Impresión en **.txt** y **.csv**;
+    endif
+backward :Próximo ángulo β75;
+repeat while (Fin de **1º Ciclo**) is (No) not (Si)
+}
+:Exportación en **.txt** y **.csv**;
+end
+
+@enduml
