@@ -522,9 +522,9 @@ for i in range(NDelBe):
 #     #eta '\u03B7'
 #     grafico.set_ylabel('Cp')
 #     plt.grid(visible = True, which = 'both', axis = 'both')
-# nombre = 'outputs/Helian_grafico-de-helice_' + hoy + '.png'
+# nombre = directorio_helian + '/Helian_grafico-de-helice_' + hoy + '.png'
 # plt.savefig(nombre, dpi=400, format='png', orientation='landscape')    
-# plt.show()
+# # plt.show()
 
 
 

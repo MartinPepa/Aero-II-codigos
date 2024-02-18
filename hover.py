@@ -59,12 +59,12 @@ def lectura_csv(archivo_csv):
 #%% Cálculos preliminares
 
 enc_1, enc_2, enc_3, xR, csR, beta, Dim, titulo_1,Vasc, Omega,\
-    R, x0, B, NX, rho, Va, theta_0, theta_f, delta_theta = lectura_csv('Hover-input.csv')
+    R, x0, B, NX, rho, Va, theta_0, theta_f, delta_theta = lectura_csv('input/Hover-input.csv')
 
 hoy = datetime.isoformat(datetime.today(), timespec="seconds")
 hoy = hoy.replace(':', '-')
 
-directorio_hover = 'Hover_' + hoy
+directorio_hover = 'outputs/Hover_' + hoy
 os.mkdir(directorio_hover)
 
 #%% Splines y gráficos
