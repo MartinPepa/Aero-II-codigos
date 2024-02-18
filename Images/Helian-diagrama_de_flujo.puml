@@ -24,12 +24,12 @@ repeat
                         :\t\t  Flag:\n"Estación fuera de curva";
                     else (No)
                         repeat
-                            :Iteración;
-                            if (iteración max) then (No)
-                            else (Si)
-                            break
+                            if (iteración max) then (Si)
+                                break
+                            else (No)
+                                :Nueva iteración;
                             endif
-                        repeat while (error < Tol) is (Si) not (No)
+                        repeat while (error > Tol) is (Si) not (No)
                     endif
                     :Impresión en **.txt** y **.csv**;
                 }
